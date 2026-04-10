@@ -1,0 +1,68 @@
+FEATURE IMPORTANCE ANALYSIS
+======================================================================
+
+Top 30 features for HVG (negative coefficients):
+----------------------------------------------------------------------
+  1. hvg                            -  -7.2825
+  2. orbán                          -  -5.8562
+  3. illusztráció                   -  -5.5578
+  4. lap                            -  -5.4476
+  5. szerinte                       -  -5.3035
+  6. fideszes                       -  -5.0606
+  7. közölte                        -  -5.0109
+  8. katasztrófavédelem             -  -3.9841
+  9. vádlott                        -  -3.8602
+ 10. amagyar                        -  -3.6367
+ 11. fidesz                         -  -3.6264
+ 12. azmti                          -  -3.6259
+ 13. rtl                            -  -3.5870
+ 14. azrtl                          -  -3.5483
+ 15. megírtuk                       -  -3.4103
+ 16. sértett                        -  -3.3256
+ 17. írja                           -  -3.1367
+ 18. facebookon                     -  -3.0437
+ 19. klub                           -  -2.9862
+ 20. rendőrség                      -  -2.8839
+ 21. police                         -  -2.8686
+ 22. kedden                         -  -2.8240
+ 23. erről                          -  -2.8194
+ 24. elhunyt                        -  -2.7781
+ 25. képünk                         -  -2.7020
+ 26. mert                           -  -2.6437
+ 27. mta                            -  -2.6056
+ 28. bűntette                       -  -2.6023
+ 29. azindex                        -  -2.5435
+ 30. borkai                         -  -2.5216
+
+Top 30 features for Origo (positive coefficients):
+----------------------------------------------------------------------
+  1. balliberális                   -   5.2815
+  2. origo                          -   4.5835
+  3. kiemelte                       -   4.0725
+  4. elmondta                       -   3.5072
+  5. tűzoltók                       -   3.3547
+  6. hiszen                         -   3.3273
+  7. gyurcsány                      -   3.2891
+  8. origónak                       -   3.0802
+  9. hangsúlyozta                   -   2.8881
+ 10. baloldal                       -   2.8746
+ 11. tette                          -   2.8685
+ 12. baloldali                      -   2.8669
+ 13. fidesz kdnp                    -   2.8244
+ 14. férfi                          -   2.6076
+ 15. kapcsán                        -   2.6020
+ 16. orbán viktor                   -   2.5491
+ 17. szocialista                    -   2.4656
+ 18. ismert                         -   2.4121
+ 19. tegnap                         -   2.3936
+ 20. bevándorláspárti               -   2.3255
+ 21. asszony                        -   2.2716
+ 22. köszönhetően                   -   2.1823
+ 23. autó                           -   2.1330
+ 24. szocialisták                   -   2.1214
+ 25. kifejtette                     -   2.0949
+ 26. gyurcsányék                    -   2.0888
+ 27. bukott                         -   2.0641
+ 28. azonnal                        -   1.9764
+ 29. fogalmazott                    -   1.9547
+ 30. alkalmatlan                    -   1.9428

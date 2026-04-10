@@ -1,0 +1,64 @@
+{
+  "2019": {
+    "group_a": "2019",
+    "group_b": "2021",
+    "n_a": 7821,
+    "n_b": 15797,
+    "mean_a": 0.293,
+    "mean_b": 0.3807,
+    "median_a": 0.2145,
+    "median_b": 0.3474,
+    "origo_pct_a": 23.3,
+    "origo_pct_b": 34.3,
+    "mann_whitney": {
+      "statistic": 49145813.5,
+      "p_value": 1.2192907757624123e-144,
+      "significant": true
+    },
+    "kolmogorov_smirnov": {
+      "statistic": 0.1570984480349582,
+      "p_value": 3.172241368643456e-113,
+      "significant": true
+    },
+    "chi_square": {
+      "statistic": 297.6377232704541,
+      "p_value": 1.0775528575923047e-66,
+      "significant": true
+    },
+    "cohens_d": {
+      "value": -0.3247,
+      "label": "kis"
+    }
+  },
+  "2021": {
+    "group_a": "2019",
+    "group_b": "2021",
+    "n_a": 7821,
+    "n_b": 15797,
+    "mean_a": 0.3184,
+    "mean_b": 0.3648,
+    "median_a": 0.2186,
+    "median_b": 0.2858,
+    "origo_pct_a": 28.5,
+    "origo_pct_b": 34.85,
+    "mann_whitney": {
+      "statistic": 56463767.0,
+      "p_value": 4.8307333443729545e-27,
+      "significant": true
+    },
+    "kolmogorov_smirnov": {
+      "statistic": 0.06410941006838478,
+      "p_value": 3.9076996738495603e-19,
+      "significant": true
+    },
+    "chi_square": {
+      "statistic": 95.61944369522796,
+      "p_value": 1.39232208321155e-22,
+      "significant": true
+    },
+    "cohens_d": {
+      "value": -0.1505,
+      "label": "elhanyagolható"
+    }
+  }
+}

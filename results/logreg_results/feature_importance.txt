@@ -1,0 +1,68 @@
+FEATURE IMPORTANCE ANALYSIS
+======================================================================
+
+Top 30 features for HVG (negative coefficients):
+----------------------------------------------------------------------
+  1. lap                            -  -7.1142
+  2. fideszes                       -  -5.0320
+  3. klub                           -  -4.6038
+  4. közöl                          -  -4.6012
+  5. szerinte                       -  -4.3263
+  6. vádlott                        -  -3.7968
+  7. rendőrség                      -  -3.6728
+  8. számol                         -  -2.9701
+  9. csütörtök                      -  -2.9318
+ 10. derül                          -  -2.9219
+ 11. fülke                          -  -2.8714
+ 12. annyi                          -  -2.8485
+ 13. sértett                        -  -2.8059
+ 14. hétfő                          -  -2.7411
+ 15. válaszol                       -  -2.5948
+ 16. győri                          -  -2.5524
+ 17. elkövetés                      -  -2.4760
+ 18. este fok                       -  -2.4666
+ 19. távozik                        -  -2.4622
+ 20. hivatkozva                     -  -2.4002
+ 21. orosz                          -  -2.3832
+ 22. közöl megyei                   -  -2.3496
+ 23. bűntett                        -  -2.3425
+ 24. plakát                         -  -2.3306
+ 25. interjú                        -  -2.3162
+ 26. állami                         -  -2.2695
+ 27. kormány                        -  -2.2585
+ 28. kedd                           -  -2.2323
+ 29. szerda                         -  -2.2081
+ 30. független                      -  -2.1948
+
+Top 30 features for Origo (positive coefficients):
+----------------------------------------------------------------------
+  1. kiemel                         -   5.0353
+  2. elmond                         -   4.0849
+  3. baloldali                      -   3.7219
+  4. szocialista                    -   3.5616
+  5. autó                           -   3.0796
+  6. kifejt                         -   3.0403
+  7. hangsúlyoz                     -   3.0223
+  8. tegnap                         -   2.8738
+  9. kapcsán                        -   2.8419
+ 10. alkalmatlan                    -   2.7632
+ 11. tűzoltó                        -   2.7370
+ 12. férfi                          -   2.6700
+ 13. soros                          -   2.6159
+ 14. köszönhető                     -   2.5527
+ 15. közösségi oldal                -   2.4852
+ 16. antiszemita                    -   2.4015
+ 17. migrációs                      -   2.3700
+ 18. ismert                         -   2.3429
+ 19. asszony                        -   2.1971
+ 20. azonnal                        -   2.1832
+ 21. gyilkos                        -   2.1516
+ 22. brüsszeli                      -   2.1256
+ 23. határ                          -   2.1089
+ 24. komoly                         -   2.0615
+ 25. részeg                         -   2.0248
+ 26. fűz                            -   2.0208
+ 27. közösségi                      -   1.9857
+ 28. kocsi                          -   1.9414
+ 29. színház                        -   1.9253
+ 30. fejlesztés                     -   1.8988

@@ -1,0 +1,68 @@
+SHAP FEATURE IMPORTANCE
+======================================================================
+
+Top 30 features pushing toward HVG (negative SHAP):
+----------------------------------------------------------------------
+  1. elér további                         mean_shap=-0.7228
+  2. eredetű                              mean_shap=-0.6930
+  3. szabad                               mean_shap=-0.6084
+  4. további részlet                      mean_shap=-0.5755
+  5. este fok                             mean_shap=-0.5699
+  6. perc perc                            mean_shap=-0.4860
+  7. jön                                  mean_shap=-0.4216
+  8. írásbeli kérdés                      mean_shap=-0.4062
+  9. járási ügyészség                     mean_shap=-0.3346
+ 10. azonnali vélemény                    mean_shap=-0.3188
+ 11. információ rendelkezik               mean_shap=-0.3031
+ 12. győri polgármester                   mean_shap=-0.3018
+ 13. tesz                                 mean_shap=-0.2170
+ 14. nagykövetség                         mean_shap=-0.2821
+ 15. gulyás miniszter                     mean_shap=-0.2786
+ 16. helyzet                              mean_shap=-0.2753
+ 17. fideszes                             mean_shap=-0.2682
+ 18. sértett                              mean_shap=-0.2561
+ 19. mutat                                mean_shap=-0.2403
+ 20. szám húz                             mean_shap=-0.2305
+ 21. hétfő este                           mean_shap=-0.2280
+ 22. kap                                  mean_shap=-0.2270
+ 23. lát                                  mean_shap=-0.2218
+ 24. írásbeli                             mean_shap=-0.2212
+ 25. hoz                                  mean_shap=-0.2196
+ 26. hozzájárulás                         mean_shap=-0.2163
+ 27. fél                                  mean_shap=-0.1987
+ 28. áll                                  mean_shap=-0.1921
+ 29. jog                                  mean_shap=-0.1980
+ 30. tiltakozás                           mean_shap=-0.1965
+
+Top 30 features pushing toward Origo (positive SHAP):
+----------------------------------------------------------------------
+  1. mentős                               mean_shap=+0.5383
+  2. gazdálkodás                          mean_shap=+0.4056
+  3. megyeszékhely                        mean_shap=+0.3958
+  4. állatkert                            mean_shap=+0.3107
+  5. iszlám                               mean_shap=+0.3097
+  6. autóút                               mean_shap=+0.2520
+  7. mentő helyszín                       mean_shap=+0.2318
+  8. balatoni                             mean_shap=+0.2290
+  9. antiszemita                          mean_shap=+0.2200
+ 10. délkeleti                            mean_shap=+0.2141
+ 11. forgalom                             mean_shap=+0.2111
+ 12. magyar nemzet                        mean_shap=+0.2071
+ 13. aktuális csatorna                    mean_shap=+0.1923
+ 14. lottó                                mean_shap=+0.1753
+ 15. csapódik                             mean_shap=+0.1690
+ 16. hív rendőr                           mean_shap=+0.1644
+ 17. megdől                               mean_shap=+0.1370
+ 18. rendőr                               mean_shap=+0.1205
+ 19. nézőpont                             mean_shap=+0.1127
+ 20. mond                                 mean_shap=+0.1061
+ 21. vesz javasol                         mean_shap=+0.1086
+ 22. fiatal férfi                         mean_shap=+0.1081
+ 23. oldal                                mean_shap=+0.1068
+ 24. közel                                mean_shap=+0.1030
+ 25. nyugati                              mean_shap=+0.0992
+ 26. ügyvéd                               mean_shap=+0.0985
+ 27. észrevesz                            mean_shap=+0.0984
+ 28. kapcsolat                            mean_shap=+0.0942
+ 29. áldozat                              mean_shap=+0.0892
+ 30. lap                                  mean_shap=+0.0343

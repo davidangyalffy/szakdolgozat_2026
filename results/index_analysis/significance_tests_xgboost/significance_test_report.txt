@@ -1,0 +1,47 @@
+======================================================================
+STATISZTIKAI SZIGNIFIKANCIA-VIZSGÁLAT
+Index cikkek: 2019 vs 2021  |  HVG–Origo XGBoost modellek
+Szignifikancia-szint: α = 0.05
+======================================================================
+
+----------------------------------------------------------------------
+MODELL: 2019-es XGBoost pipeline
+----------------------------------------------------------------------
+
+  Csoport A: Index 2019  (n=7,821)
+  Csoport B: Index 2021  (n=15,797)
+
+  Átlagos P(Origo):  2019 → 0.2930  |  2021 → 0.3807  (Δ = +0.0877)
+  Mediális P(Origo): 2019 → 0.2145  |  2021 → 0.3474
+  Origo-szerű arány: 2019 → 23.3%  |  2021 → 34.3%  (Δ = +11.0 pp)
+
+  Tesztek:
+  Mann–Whitney U               stat=49145813.5000  p=1.22e-144  ✓ SZIGNIFIKÁNS
+  Kolmogorov–Smirnov           stat=      0.1571  p=3.17e-113  ✓ SZIGNIFIKÁNS
+  Khi-négyzet (arányok)        stat=    297.6377  p=1.08e-66  ✓ SZIGNIFIKÁNS
+
+  Hatásméret (Cohen's d): -0.3247  (kis hatás)
+
+  → Mindhárom teszt szignifikáns — a különbség statisztikailag igazolt.
+
+----------------------------------------------------------------------
+MODELL: 2021-es XGBoost pipeline
+----------------------------------------------------------------------
+
+  Csoport A: Index 2019  (n=7,821)
+  Csoport B: Index 2021  (n=15,797)
+
+  Átlagos P(Origo):  2019 → 0.3184  |  2021 → 0.3648  (Δ = +0.0464)
+  Mediális P(Origo): 2019 → 0.2186  |  2021 → 0.2858
+  Origo-szerű arány: 2019 → 28.5%  |  2021 → 34.9%  (Δ = +6.4 pp)
+
+  Tesztek:
+  Mann–Whitney U               stat=56463767.0000  p=4.83e-27  ✓ SZIGNIFIKÁNS
+  Kolmogorov–Smirnov           stat=      0.0641  p=3.91e-19  ✓ SZIGNIFIKÁNS
+  Khi-négyzet (arányok)        stat=     95.6194  p=1.39e-22  ✓ SZIGNIFIKÁNS
+
+  Hatásméret (Cohen's d): -0.1505  (elhanyagolható hatás)
+
+  → Mindhárom teszt szignifikáns — a különbség statisztikailag igazolt.
+
+======================================================================

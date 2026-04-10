@@ -1,0 +1,32 @@
+[
+  {
+    "type": "confident",
+    "portal": "origo",
+    "true_label": "origo",
+    "p_origo": 1.0,
+    "predicted": "origo",
+    "correct": true,
+    "word_count": 95,
+    "text_preview": "telefon akar elad egy férfi férfi július én tart egy vonat amikor az egyik ülés otthagy ezer forint értékű telefon ez után az internet nyom tud követ hogy hol van telefon lát hogy van ezért hív rendőr"
+  },
+  {
+    "type": "uncertain",
+    "portal": "origo",
+    "true_label": "origo",
+    "p_origo": 0.501,
+    "predicted": "origo",
+    "correct": true,
+    "word_count": 118,
+    "text_preview": "újra református püspök választ meg magyarországi egyház tanács elnök szerdai esemény közlemény szerint beszámoló az elmúlt tíz év jelentős az szervezet közelgő hazai és kitér fontos magyarországi is f"
+  },
+  {
+    "type": "misclassified",
+    "portal": "hvg",
+    "true_label": "hvg",
+    "p_origo": 0.9964,
+    "predicted": "origo",
+    "correct": false,
+    "word_count": 42,
+    "text_preview": "ég az avar leáll vonat is nagyjából egy kilométer hosszú lángol az avar tudat honlap láng és tűzoltó is dolgozik valamint elindul segítség és is is leáll tűzoltó kér információ szerint ez még legalább"
+  }
+]

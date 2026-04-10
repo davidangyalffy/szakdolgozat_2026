@@ -1,0 +1,32 @@
+[
+  {
+    "type": "confident",
+    "portal": "origo",
+    "true_label": "origo",
+    "p_origo": 1.0,
+    "predicted": "origo",
+    "correct": true,
+    "word_count": 19,
+    "text_preview": "ég egy autó tűzoltó két elolt majd megkezd az izzó rész az egység közös dolgozik helyszín ahol halad forgalom"
+  },
+  {
+    "type": "uncertain",
+    "portal": "origo",
+    "true_label": "origo",
+    "p_origo": 0.4999,
+    "predicted": "hvg",
+    "correct": false,
+    "word_count": 83,
+    "text_preview": "jövő hét hétfő és péntek is közlekedik reptér módosítás után már nemcsak vasárnap hanem hétfő és péntek is perc indul busz és repülőtér és óra között autóbusz júliusi óta járat egyre több vesz igény e"
+  },
+  {
+    "type": "misclassified",
+    "portal": "hvg",
+    "true_label": "hvg",
+    "p_origo": 0.9984,
+    "predicted": "origo",
+    "correct": false,
+    "word_count": 56,
+    "text_preview": "csákány üt agy szomszéd kutya egy férfi férfi szeptember megy látogató és hogy szembeni telek kutya vesz egy átmegy lakatlan ház és az udvar az egyik több fej vág az állat elpusztul terület kutya férf"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "year": 2019,
+  "model": "XGBoost",
+  "best_params": {
+    "colsample_bytree": 0.5,
+    "learning_rate": 0.1,
+    "max_depth": 6,
+    "n_estimators": 300
+  },
+  "baseline": {
+    "test_accuracy": 0.8448318192978149,
+    "test_auc": 0.9144553276608852
+  },
+  "tuned": {
+    "train_accuracy": 0.9394720687538367,
+    "test_accuracy": 0.8551436287748588,
+    "train_auc": 0.9844777278292252,
+    "test_auc": 0.9221113461353693,
+    "cv_mean": 0.8322283609576427,
+    "cv_std": 0.004492614969559726,
+    "confusion_matrix": [
+      [
+        1610,
+        356
+      ],
+      [
+        234,
+        1873
+      ]
+    ]
+  }
+}

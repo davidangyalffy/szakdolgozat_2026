@@ -7,12 +7,10 @@ archive/
 models/
 
 # ── Betanított modell fájlok az eredmények között ─────────────────────────────
-results/lstm_results/**/*.keras
-results/lstm_results/**/*.pkl
-results/logreg_results/**/*.pkl
-results/logreg_results/**/*.pkl
-results/xgboost_results/*.npy
-results/tfidf_results/*.npz
+results/**/*.keras
+results/**/*.pkl
+results/**/*.npy
+results/**/*.npz
 
 # Kísérleti LSTM futások (nem végleges eredmények)
 results/lstm_results/2019_*/

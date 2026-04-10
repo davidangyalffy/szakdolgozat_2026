@@ -1,0 +1,112 @@
+============================================================
+HVG ITTHON ARTICLES - DESCRIPTIVE STATISTICS REPORT
+============================================================
+
+BASIC STATISTICS
+------------------------------------------------------------
+Total articles: 17648
+
+Content Length (characters):
+  Average: 1895.45
+  Median: 1235.50
+  Std Dev: 2632.59
+  Shortest: 0
+  Longest: 97772
+
+Word Count (excluding stop words):
+  Average: 173.40
+  Median: 113.00
+
+Shortest article (ID: 17):
+  Title: Ön mennyire emlékszik az év eseményeire? Tesztelje tudását!
+  Length: 0 characters
+
+Longest article (ID: 7768):
+  Title: Krusovszky Dénes: "Mintha fantomokká akarnánk változtatni magunkat"
+  Length: 97772 characters
+
+
+============================================================
+TOP 50 MOST COMMON WORDS
+------------------------------------------------------------
+ 1. magyar                    - 12687 occurrences
+ 2. mondta                    - 10817 occurrences
+ 3. kell                      - 10190 occurrences
+ 4. orbán                     -  8288 occurrences
+ 5. úgy                       -  8205 occurrences
+ 6. mert                      -  7656 occurrences
+ 7. akkor                     -  7607 occurrences
+ 8. két                       -  7271 occurrences
+ 9. arról                     -  7179 occurrences
+10. kormány                   -  7029 occurrences
+11. arra                      -  6972 occurrences
+12. olyan                     -  6651 occurrences
+13. európai                   -  6201 occurrences
+14. fidesz                    -  6064 occurrences
+15. ami                       -  4913 occurrences
+16. hvg                       -  4875 occurrences
+17. illetve                   -  4820 occurrences
+18. ellenzéki                 -  4772 occurrences
+19. egyik                     -  4670 occurrences
+20. viszont                   -  4668 occurrences
+21. volna                     -  4613 occurrences
+22. férfi                     -  4538 occurrences
+23. hanem                     -  4457 occurrences
+24. első                      -  4407 occurrences
+25. nagy                      -  4400 occurrences
+26. nincs                     -  4252 occurrences
+27. korábban                  -  4186 occurrences
+28. karácsony                 -  3811 occurrences
+29. szerinte                  -  3801 occurrences
+30. ezer                      -  3784 occurrences
+31. éves                      -  3781 occurrences
+32. miniszterelnök            -  3777 occurrences
+33. előtt                     -  3673 occurrences
+34. azzal                     -  3669 occurrences
+35. viktor                    -  3618 occurrences
+36. írta                      -  3533 occurrences
+37. politikai                 -  3532 occurrences
+38. mellett                   -  3531 occurrences
+39. alapján                   -  3513 occurrences
+40. más                       -  3511 occurrences
+41. annak                     -  3493 occurrences
+42. ben                       -  3487 occurrences
+43. valamint                  -  3485 occurrences
+44. ilyen                     -  3361 occurrences
+45. ott                       -  3322 occurrences
+46. közölte                   -  3252 occurrences
+47. nagyon                    -  3167 occurrences
+48. itt                       -  3166 occurrences
+49. ezzel                     -  3127 occurrences
+50. nemzeti                   -  3125 occurrences
+
+============================================================
+TOP 20 MOST COMMON BIGRAMS
+------------------------------------------------------------
+ 1. 'orbán viktor' - 3376 occurrences
+ 2. 'karácsony gergely' - 1696 occurrences
+ 3. 'márki zay' - 1693 occurrences
+ 4. 'arról beszélt' - 1498 occurrences
+ 5. 'hvg nak' - 1031 occurrences
+ 6. 'tette hozzá' -  915 occurrences
+ 7. 'gulyás gergely' -  802 occurrences
+ 8. 'zay péter' -  799 occurrences
+ 9. 'magyar kormány' -  787 occurrences
+10. 'millió forint' -  668 occurrences
+11. 'rendőr főkapitányság' -  662 occurrences
+12. 'viktor miniszterelnök' -  658 occurrences
+13. 'európai bizottság' -  651 occurrences
+14. 'facebook oldalán' -  621 occurrences
+15. 'úgy fogalmazott' -  598 occurrences
+16. 'fidesz kdnp' -  554 occurrences
+17. 'fertőzöttek száma' -  548 occurrences
+18. 'meteorológiai szolgálat' -  546 occurrences
+19. 'európai unió' -  534 occurrences
+20. 'fekete győr' -  523 occurrences
+
+============================================================
+ARTICLES BY YEAR
+------------------------------------------------------------
+2019:  9969 articles
+2020:    62 articles
+2021:  7617 articles

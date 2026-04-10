@@ -1,0 +1,97 @@
+{
+  "year": 2019,
+  "model": "BidirectionalLSTM",
+  "best_params": {
+    "lstm_units": 128,
+    "dropout_rate": 0.25,
+    "learning_rate": 0.001
+  },
+  "training": {
+    "n_runs": 5,
+    "epochs_max": 20,
+    "patience": 3,
+    "batch_size": 64,
+    "best_run": 2,
+    "best_run_seed": 68,
+    "best_epoch": 20
+  },
+  "tuned": {
+    "train_accuracy": 0.8695838171484447,
+    "test_accuracy": 0.8164263016377414,
+    "train_auc": 0.9486907328203609,
+    "test_auc": 0.9008333393165276,
+    "confusion_matrix": [
+      [
+        1552,
+        418
+      ],
+      [
+        333,
+        1788
+      ]
+    ]
+  },
+  "runs_summary": {
+    "test_accuracy_mean": 0.8087020288438035,
+    "test_accuracy_std": 0.008558298201799583,
+    "test_auc_mean": 0.8953555094450707,
+    "test_auc_std": 0.0060929091528972665
+  },
+  "all_runs": [
+    {
+      "run": 1,
+      "seed": 67,
+      "epochs_run": 16,
+      "best_epoch": 13,
+      "best_val_loss": 0.4286530315876007,
+      "test_accuracy": 0.7922268394035689,
+      "test_auc": 0.8839588164762814,
+      "train_accuracy": 0.8325490435739168,
+      "train_auc": 0.9171736434541309
+    },
+    {
+      "run": 2,
+      "seed": 68,
+      "epochs_run": 20,
+      "best_epoch": 20,
+      "best_val_loss": 0.3992861807346344,
+      "test_accuracy": 0.8164263016377414,
+      "test_auc": 0.9008333393165276,
+      "train_accuracy": 0.8695838171484447,
+      "train_auc": 0.9486907328203609
+    },
+    {
+      "run": 3,
+      "seed": 69,
+      "epochs_run": 20,
+      "best_epoch": 20,
+      "best_val_loss": 0.41282421350479126,
+      "test_accuracy": 0.8130041554632119,
+      "test_auc": 0.8949657402288452,
+      "train_accuracy": 0.8610279288639002,
+      "train_auc": 0.9431723226516958
+    },
+    {
+      "run": 4,
+      "seed": 70,
+      "epochs_run": 20,
+      "best_epoch": 20,
+      "best_val_loss": 0.4133865535259247,
+      "test_accuracy": 0.8090931312637497,
+      "test_auc": 0.8968253170494715,
+      "train_accuracy": 0.8599278860844588,
+      "train_auc": 0.9429656649110519
+    },
+    {
+      "run": 5,
+      "seed": 71,
+      "epochs_run": 20,
+      "best_epoch": 19,
+      "best_val_loss": 0.4120137691497803,
+      "test_accuracy": 0.8127597164507455,
+      "test_auc": 0.9001943341542276,
+      "train_accuracy": 0.8604779074741795,
+      "train_auc": 0.9453657190524031
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+======================================================================
+STATISZTIKAI SZIGNIFIKANCIA-VIZSGÁLAT
+Index cikkek: 2019 vs 2021  |  HVG–Origo LogReg modellek
+Szignifikancia-szint: α = 0.05
+======================================================================
+
+----------------------------------------------------------------------
+MODELL: 2019-es LogReg pipeline
+----------------------------------------------------------------------
+
+  Csoport A: Index 2019  (n=7,821)
+  Csoport B: Index 2021  (n=15,797)
+
+  Átlagos P(Origo):  2019 → 0.3166  |  2021 → 0.4209  (Δ = +0.1043)
+  Mediális P(Origo): 2019 → 0.2231  |  2021 → 0.3824
+  Origo-szerű arány: 2019 → 26.3%  |  2021 → 39.7%  (Δ = +13.5 pp)
+
+  Tesztek:
+  Mann–Whitney U               stat=48155361.0000  p=6.91e-168  ✓ SZIGNIFIKÁNS
+  Kolmogorov–Smirnov           stat=      0.1653  p=2.05e-125  ✓ SZIGNIFIKÁNS
+  Khi-négyzet (arányok)        stat=    414.0419  p=4.83e-92  ✓ SZIGNIFIKÁNS
+
+  Hatásméret (Cohen's d): -0.3606  (kis hatás)
+
+  → Mindhárom teszt szignifikáns — a különbség statisztikailag igazolt.
+
+----------------------------------------------------------------------
+MODELL: 2021-es LogReg pipeline
+----------------------------------------------------------------------
+
+  Csoport A: Index 2019  (n=7,821)
+  Csoport B: Index 2021  (n=15,797)
+
+  Átlagos P(Origo):  2019 → 0.3537  |  2021 → 0.4193  (Δ = +0.0656)
+  Mediális P(Origo): 2019 → 0.2859  |  2021 → 0.3749
+  Origo-szerű arány: 2019 → 31.4%  |  2021 → 40.7%  (Δ = +9.3 pp)
+
+  Tesztek:
+  Mann–Whitney U               stat=54430010.0000  p=3.66e-50  ✓ SZIGNIFIKÁNS
+  Kolmogorov–Smirnov           stat=      0.0955  p=5.78e-42  ✓ SZIGNIFIKÁNS
+  Khi-négyzet (arányok)        stat=    193.7460  p=4.84e-44  ✓ SZIGNIFIKÁNS
+
+  Hatásméret (Cohen's d): -0.2144  (kis hatás)
+
+  → Mindhárom teszt szignifikáns — a különbség statisztikailag igazolt.
+
+======================================================================

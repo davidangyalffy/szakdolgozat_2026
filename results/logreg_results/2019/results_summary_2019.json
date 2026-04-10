@@ -1,0 +1,32 @@
+{
+  "year": 2019,
+  "model": "LogisticRegression",
+  "best_params": {
+    "clf__C": 5.0,
+    "tfidf__max_features": 7000
+  },
+  "baseline": {
+    "test_accuracy": 0.8273999508961454,
+    "test_auc": 0.9102299605877033,
+    "train_accuracy": 0.8750153468385513,
+    "train_auc": 0.94858014604764
+  },
+  "tuned": {
+    "train_accuracy": 0.9267034990791897,
+    "test_accuracy": 0.8384483181929782,
+    "train_auc": 0.9792114559300963,
+    "test_auc": 0.9207160069544863,
+    "cv_mean": 0.8322283609576427,
+    "cv_std": 0.006771000124064121,
+    "confusion_matrix": [
+      [
+        1606,
+        360
+      ],
+      [
+        298,
+        1809
+      ]
+    ]
+  }
+}

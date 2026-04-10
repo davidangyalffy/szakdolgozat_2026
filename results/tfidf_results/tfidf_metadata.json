@@ -1,0 +1,23 @@
+{
+  "n_documents": 61409,
+  "n_features": 5000,
+  "n_nonzero": 4326087,
+  "sparsity": 98.5910576625576,
+  "documents_by_portal": {
+    "index": 23618,
+    "origo": 20432,
+    "hvg": 17359
+  },
+  "documents_by_year": {
+    "2021": 33225,
+    "2019": 28184
+  },
+  "documents_by_portal_year": {
+    "hvg_2019": 9831,
+    "hvg_2021": 7528,
+    "origo_2019": 10532,
+    "origo_2021": 9900,
+    "index_2019": 7821,
+    "index_2021": 15797
+  }
+}

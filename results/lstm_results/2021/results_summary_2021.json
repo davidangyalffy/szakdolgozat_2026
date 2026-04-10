@@ -1,0 +1,97 @@
+{
+  "year": 2021,
+  "model": "BidirectionalLSTM",
+  "best_params": {
+    "lstm_units": 64,
+    "dropout_rate": 0.25,
+    "learning_rate": 0.001
+  },
+  "training": {
+    "n_runs": 5,
+    "epochs_max": 50,
+    "patience": 3,
+    "batch_size": 64,
+    "best_run": 5,
+    "best_run_seed": 71,
+    "best_epoch": 31
+  },
+  "tuned": {
+    "train_accuracy": 0.9165719158612848,
+    "test_accuracy": 0.858726549175668,
+    "train_auc": 0.9742656623394956,
+    "test_auc": 0.9308007933814073,
+    "confusion_matrix": [
+      [
+        1264,
+        245
+      ],
+      [
+        252,
+        1757
+      ]
+    ]
+  },
+  "runs_summary": {
+    "test_accuracy_mean": 0.845480386583286,
+    "test_accuracy_std": 0.009588369535769569,
+    "test_auc_mean": 0.9197050647830289,
+    "test_auc_std": 0.007478221354630735
+  },
+  "all_runs": [
+    {
+      "run": 1,
+      "seed": 67,
+      "epochs_run": 26,
+      "best_epoch": 25,
+      "best_val_loss": 0.3577333688735962,
+      "test_accuracy": 0.839681637293917,
+      "test_auc": 0.9185263398866795,
+      "train_accuracy": 0.879263786242183,
+      "train_auc": 0.9549956635112301
+    },
+    {
+      "run": 2,
+      "seed": 68,
+      "epochs_run": 19,
+      "best_epoch": 16,
+      "best_val_loss": 0.37819957733154297,
+      "test_accuracy": 0.8305855599772598,
+      "test_auc": 0.9076264167112804,
+      "train_accuracy": 0.8601478112563957,
+      "train_auc": 0.937355022621233
+    },
+    {
+      "run": 3,
+      "seed": 69,
+      "epochs_run": 29,
+      "best_epoch": 26,
+      "best_val_loss": 0.3495531678199768,
+      "test_accuracy": 0.8499147242751564,
+      "test_auc": 0.922641189531139,
+      "train_accuracy": 0.8944002274019329,
+      "train_auc": 0.9611712947696702
+    },
+    {
+      "run": 4,
+      "seed": 70,
+      "epochs_run": 26,
+      "best_epoch": 23,
+      "best_val_loss": 0.3557688891887665,
+      "test_accuracy": 0.8484934621944287,
+      "test_auc": 0.9189305844046389,
+      "train_accuracy": 0.8894968732234224,
+      "train_auc": 0.9578928610213482
+    },
+    {
+      "run": 5,
+      "seed": 71,
+      "epochs_run": 34,
+      "best_epoch": 31,
+      "best_val_loss": 0.3324814736843109,
+      "test_accuracy": 0.858726549175668,
+      "test_auc": 0.9308007933814073,
+      "train_accuracy": 0.9165719158612848,
+      "train_auc": 0.9742656623394956
+    }
+  ]
+}

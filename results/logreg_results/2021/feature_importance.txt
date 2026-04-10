@@ -1,0 +1,68 @@
+FEATURE IMPORTANCE ANALYSIS
+======================================================================
+
+Top 30 features for HVG (negative coefficients):
+----------------------------------------------------------------------
+  1. derül                          -  -9.8010
+  2. szerinte                       -  -9.0528
+  3. közöl                          -  -7.3050
+  4. fideszes                       -  -7.2913
+  5. ellenzék                       -  -7.2150
+  6. rendőrség                      -  -7.1742
+  7. lap                            -  -7.1589
+  8. ellenzéki                      -  -6.6196
+  9. klub                           -  -6.1039
+ 10. fülke                          -  -5.9010
+ 11. hétfő                          -  -5.5931
+ 12. számol                         -  -5.4509
+ 13. vasárnap                       -  -5.4141
+ 14. veszt                          -  -5.2983
+ 15. magyaráz                       -  -5.2014
+ 16. kedd                           -  -5.0912
+ 17. vád emel                       -  -5.0640
+ 18. szerda                         -  -5.0410
+ 19. miniszterelnök                 -  -4.9356
+ 20. kormány                        -  -4.8725
+ 21. csatorna                       -  -4.8457
+ 22. csütörtök                      -  -4.6886
+ 23. gyanú                          -  -4.6864
+ 24. vádlott                        -  -4.6525
+ 25. kapcsolódó                     -  -4.6415
+ 26. gyanúsít                       -  -4.5771
+ 27. bántalmaz                      -  -4.4568
+ 28. független                      -  -4.4250
+ 29. értesül                        -  -4.4206
+ 30. közöl megyei                   -  -4.3130
+
+Top 30 features for Origo (positive coefficients):
+----------------------------------------------------------------------
+  1. baloldali                      -  19.7496
+  2. kapcsán                        -   6.7656
+  3. kiemel                         -   6.4422
+  4. hangsúlyoz                     -   5.5757
+  5. javasol                        -   5.3466
+  6. közösségi oldal                -   5.2481
+  7. köszönhető                     -   4.7542
+  8. asszony                        -   4.7372
+  9. fontos                         -   4.6836
+ 10. kifejt                         -   4.4563
+ 11. baloldal                       -   4.2384
+ 12. térség                         -   3.9763
+ 13. javasol bíróság                -   3.9051
+ 14. sofőr                          -   3.8815
+ 15. baloldali politikus            -   3.6740
+ 16. aktuális                       -   3.6434
+ 17. városháza                      -   3.6370
+ 18. kiszabás javasol               -   3.5757
+ 19. hazudik                        -   3.5725
+ 20. különböző                      -   3.4096
+ 21. eljuttatott                    -   3.4083
+ 22. magyar nemzet                  -   3.4058
+ 23. hazugság                       -   3.3584
+ 24. részeg                         -   3.3442
+ 25. fűz                            -   3.3386
+ 26. megbeszélés                    -   3.3129
+ 27. rendelkezés                    -   3.2891
+ 28. olvasható közlemény            -   3.2452
+ 29. egyértelmű                     -   3.1947
+ 30. visz                           -   3.1117

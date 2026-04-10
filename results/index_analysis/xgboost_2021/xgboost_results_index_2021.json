@@ -1,0 +1,32 @@
+{
+  "model_year": 2021,
+  "n_articles": 23618,
+  "overall": {
+    "origo_like_count": 7735,
+    "origo_like_pct": 32.75,
+    "hvg_like_count": 15883,
+    "hvg_like_pct": 67.25,
+    "mean_proba_origo": 0.3495,
+    "median_proba_origo": 0.2626
+  },
+  "by_year": {
+    "2019": {
+      "n": 7821,
+      "origo_like_count": 2229,
+      "origo_like_pct": 28.5,
+      "hvg_like_count": 5592,
+      "hvg_like_pct": 71.5,
+      "mean_proba_origo": 0.3184,
+      "median_proba_origo": 0.2186
+    },
+    "2021": {
+      "n": 15797,
+      "origo_like_count": 5506,
+      "origo_like_pct": 34.85,
+      "hvg_like_count": 10291,
+      "hvg_like_pct": 65.15,
+      "mean_proba_origo": 0.3648,
+      "median_proba_origo": 0.2858
+    }
+  }
+}
