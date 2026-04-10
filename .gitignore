@@ -1,0 +1,56 @@
+# ── Adatok (méret + szerzői jog) ──────────────────────────────────────────────
+raw_data/
+processed_data/
+archive/
+
+# ── Modellek (méret) ──────────────────────────────────────────────────────────
+models/
+
+# ── Betanított modell fájlok az eredmények között ─────────────────────────────
+results/lstm_results/**/*.keras
+results/lstm_results/**/*.pkl
+results/logreg_results/**/*.pkl
+results/logreg_results/**/*.pkl
+results/xgboost_results/*.npy
+results/tfidf_results/*.npz
+
+# Kísérleti LSTM futások (nem végleges eredmények)
+results/lstm_results/2019_*/
+results/lstm_results/2021_*/
+
+# Ha az analysis/ név marad (kompatibilitás)
+analysis/lstm_results/**/*.keras
+analysis/lstm_results/**/*.pkl
+analysis/logreg_results/**/*.pkl
+analysis/xgboost_results/*.npy
+analysis/tfidf_results/*.npz
+analysis/lstm_results/2019_*/
+analysis/lstm_results/2021_*/
+
+# ── Repóból kizárt scriptek ───────────────────────────────────────────────────
+scripts/1.py
+scripts/prepare_analysis_datasets.py
+
+# ── Virtuális környezet ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Python cache ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ── Naplófájlok ───────────────────────────────────────────────────────────────
+*.log
+
+# ── Rendszerfájlok ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Claude Code helyi konfig ──────────────────────────────────────────────────
+.claude/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
