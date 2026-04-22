@@ -1,14 +1,24 @@
-# Portálazonosítás gépi tanulással: HVG vs. Origo szövegklasszifikáció
+# AZ INDEX.HU NYELVEZETÉNEK VIZSGÁLATA A 2020-AS TULAJDONOSVÁLTÁST KÖVETŐEN GÉPI TANULÁSI MÓDSZEREKKEL
 
-Szakdolgozat kódbázisa — Budapesti Corvinus Egyetem, 2026
+Szakdolgozat kódbázisa — ELTE Tátk, 2026
 
 ---
 
-## Kutatási kérdés
+## Absztrakt
 
-Megkülönböztethetők-e egymástól gépi tanulási módszerekkel a két eltérő szerkesztőségi irányultságú magyar hírportál (HVG és Origo) cikkei puszta szövegük alapján, és ha igen, megfigyelhető-e változás ebben az elkülöníthetőségben 2019 és 2021 között?
-
-A kutatás három modellt alkalmaz: Logisztikus regressziót (TF-IDF jellemzőkkel), XGBoost-ot (TF-IDF jellemzőkkel) és kétirányú LSTM neurális hálózatot (FastText szóvektorokkal). Az Index.hu cikkeit ismeretlen adatként kezeli, és vizsgálja, hogy a modellek e portál cikkeiben is kimutatnak-e szerkesztőségi mintázatot.
+A magyar online médiatér polarizációja és a szerkesztéspolitikai változások kvantitatív
+kimutatása a digitális újságírás kutatásának aktuális kérdése. Jelen tanulmány azt elemzi, hogy
+az Index.hu 2020-as tulajdonos- és szerkesztőségváltását követően kimutatható-e változás a
+portál nyelvezetében. A vizsgálat proxy-alapú megközelítéssel történik. Ennek során gépi
+tanulási modellek kerülnek betanításra két eltérő szerkesztéspolitikát képviselő hírportál, a
+HVG és az Origo cikkein, majd ezek a modellek illesztésre kerülnek az Index cikkein. Az
+elemzésben három modellarchitektúra, a logisztikus regresszió, az XGBoost és a BiLSTM
+magyar fastText-beágyazásokkal, teljesítménye kerül összehasonlításra, SHAP- és
+LIME-alapú interpretálhatósági vizsgálattal kiegészítve. A statisztikai validáció
+Mann-Whitney U-próbával, és Cohen-féle d hatásmérettel történt. Az eredmények arra
+utalnak, hogy az Index 2021-es cikkeinek átlagos P(Origo)-értéke konzisztensen magasabb a
+2019-es cikkekénél mindhárom modell és mindkét tanítási év esetében, ami az Origo
+stilisztikai pólusa felé történő szisztematikus elmozdulásra utal.
 
 ---
 
@@ -90,7 +100,7 @@ mv cc.hu.300.bin models/
 
 ## Pipeline futtatása
 
-A teljes pipeline az alábbi sorrendben futtatható. Minden script a projekt gyökeréből (`scripts/` szülőkönyvtárából) hívható meg, vagy a `scripts/` mappából relatív útvonallal.
+A teljes pipeline az alábbi sorrendben futtatható:
 
 ### 1. Előfeldolgozás
 
@@ -144,20 +154,6 @@ python scripts/lstm_article_examples_lime.py
 
 ---
 
-## Főbb eredmények
-
-Az alábbi táblázat a három modell teszt pontosságát és AUC értékét mutatja a két vizsgált évre (HVG vs. Origo osztályozás):
-
-| Modell | 2019 teszt acc. | 2019 AUC | 2021 teszt acc. | 2021 AUC |
-|---|---|---|---|---|
-| Logisztikus regresszió | 83,8% | 0,921 | 87,3% | 0,945 |
-| XGBoost | 85,5% | 0,922 | 88,8% | 0,956 |
-| Kétirányú LSTM | 81,6% | 0,901 | 85,9% | 0,931 |
-
-A részletes eredmények, konfúziós mátrixok, ROC-görbék és LIME/SHAP magyarázatok a `results/` mappában találhatók.
-
----
-
 ## Adatforrások
 
 ### Felhasznált portálok
@@ -194,20 +190,12 @@ Az adatokra, a cikkekre és azok feldolgozott változataira az eredeti portálok
 
 ## Hivatkozás
 
-Ha ezt a munkát felhasználod, kérjük, hivatkozz rá az alábbi formában:
-
 ```bibtex
 @mastersthesis{angyalffy2026portal,
   author  = {Angyalffy, Dávid},
-  title   = {Portálazonosítás gépi tanulással: HVG vs. Origo szövegklasszifikáció},
-  school  = {Budapesti Corvinus Egyetem},
+  title   = {AZ INDEX.HU NYELVEZETÉNEK VIZSGÁLATA A 2020-AS TULAJDONOSVÁLTÁST KÖVETŐEN GÉPI TANULÁSI MÓDSZEREKKEL},
+  school  = {Eötvös Lóránt Tudomány Egyetem},
   year    = {2026},
-  url     = {https://github.com/angyalffd/szakdolgozat}
+  url     = {https://github.com/davidangyalffy/szakdolgozat_2026}
 }
 ```
-
----
-
-## Kapcsolat
-
-Kérdések esetén nyiss egy GitHub Issue-t, vagy vedd fel a kapcsolatot a szerzővel.
