@@ -28,6 +28,7 @@ analysis/lstm_results/2021_*/
 # ── Repóból kizárt scriptek ───────────────────────────────────────────────────
 scripts/1.py
 scripts/prepare_analysis_datasets.py
+scripts/find_max_sequence_length.py
 
 # ── Virtuális környezet ───────────────────────────────────────────────────────
 .venv/
