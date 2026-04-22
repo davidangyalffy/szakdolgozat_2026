@@ -1,13 +1,3 @@
-"""
-Statistical significance test: Index articles 2019 vs 2021
-using the trained HVG–Origo LSTM models.
-
-For each model year (2019, 2021):
-  - Predict P(Origo) for all Index articles
-  - Split by publication year (2019 vs 2021)
-  - Run: Mann-Whitney U, Kolmogorov-Smirnov, chi-square on proportions, Cohen's d
-  - Save results + plot
-"""
 import json
 import pickle
 import numpy as np
@@ -25,7 +15,6 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 sns.set_style('whitegrid')
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
 SCRIPT_DIR    = Path(__file__).parent
 PROJECT_ROOT  = SCRIPT_DIR.parent
 MODEL_BASE    = PROJECT_ROOT / 'results' / 'lstm_results'
@@ -37,8 +26,6 @@ ALPHA            = 0.05
 MAX_SEQUENCE_LEN = 330
 BATCH_SIZE       = 64
 
-
-# ── Helpers ────────────────────────────────────────────────────────────────────
 
 def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
     pooled_std = np.sqrt((a.std(ddof=1)**2 + b.std(ddof=1)**2) / 2)
@@ -97,8 +84,6 @@ def run_tests(a: np.ndarray, b: np.ndarray, label_a: str, label_b: str) -> dict:
     }
 
 
-# ── Report ─────────────────────────────────────────────────────────────────────
-
 def format_test(name: str, stat: float, p: float, sig: bool) -> str:
     sig_str = '✓ SZIGNIFIKÁNS' if sig else '✗ nem szignifikáns'
     return f'  {name:<28} stat={stat:>12.4f}  p={p:.2e}  {sig_str}'
@@ -111,7 +96,6 @@ def write_report(all_results: dict, path: Path):
 
     def w(t=''):
         lines.append(t)
-        print(t)
 
     w(sep)
     w('STATISZTIKAI SZIGNIFIKANCIA-VIZSGÁLAT')
@@ -160,10 +144,7 @@ def write_report(all_results: dict, path: Path):
     w()
     w(sep)
     path.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'\n✓ Riport mentve: {path}')
 
-
-# ── Visualization ──────────────────────────────────────────────────────────────
 
 def create_plot(all_results: dict, probas: dict):
     fig, axes = plt.subplots(1, len(MODEL_YEARS), figsize=(14, 5), sharey=False)
@@ -207,27 +188,18 @@ def create_plot(all_results: dict, probas: dict):
     out = OUTPUT_DIR / 'significance_test_plot.png'
     plt.savefig(out, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ Ábra mentve: {out}')
 
-
-# ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 70)
-    print('INDEX CIKKEK SZIGNIFIKANCIA-VIZSGÁLATA (LSTM)')
-    print('=' * 70)
 
-    print(f'\nIndex adatok betöltése: {INDEX_DATA}')
     with open(INDEX_DATA, 'r', encoding='utf-8') as f:
         data = json.load(f)
     df = pd.DataFrame(data)
-    print(f'✓ {len(df):,} cikk betöltve')
 
     mask_19 = df['year'] == '2019'
     mask_21 = df['year'] == '2021'
-    print(f'  2019: {mask_19.sum():,}  |  2021: {mask_21.sum():,}')
 
     texts = df['text'].tolist()
 
@@ -235,8 +207,6 @@ def main():
     all_probas  = {}
 
     for model_year in MODEL_YEARS:
-        print(f'\n{"─"*55}')
-        print(f'  {model_year}-es LSTM betöltése …')
 
         model_path     = MODEL_BASE / str(model_year) / f'lstm_model_{model_year}.keras'
         tokenizer_path = MODEL_BASE / str(model_year) / f'tokenizer_{model_year}.pkl'
@@ -245,7 +215,6 @@ def main():
         with open(tokenizer_path, 'rb') as f:
             tokenizer = pickle.load(f)
 
-        print('  Tokenizálás + előrejelzés …')
         seqs   = tokenizer.texts_to_sequences(texts)
         padded = pad_sequences(seqs, maxlen=MAX_SEQUENCE_LEN,
                                padding='post', truncating='post')
@@ -259,7 +228,6 @@ def main():
 
         tf.keras.backend.clear_session()
 
-    print('\n' + '=' * 70)
     write_report(all_results, OUTPUT_DIR / 'significance_test_report.txt')
 
     create_plot(all_results, all_probas)
@@ -267,11 +235,6 @@ def main():
     json_out = {str(k): v for k, v in all_results.items()}
     with open(OUTPUT_DIR / 'significance_test_results.json', 'w', encoding='utf-8') as f:
         json.dump(json_out, f, ensure_ascii=False, indent=2)
-    print(f'✓ JSON mentve: {OUTPUT_DIR / "significance_test_results.json"}')
-
-    print('\n' + '=' * 70)
-    print(f'  KÉSZ  |  Eredmények: {OUTPUT_DIR}')
-    print('=' * 70)
 
 
 if __name__ == '__main__':

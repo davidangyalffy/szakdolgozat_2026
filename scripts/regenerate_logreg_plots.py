@@ -1,7 +1,3 @@
-"""
-Regenerate LogReg visualizations with Hungarian labels and consistent style.
-Loads existing pipelines and reproduces the exact test split to get probabilities.
-"""
 import json
 import pickle
 import numpy as np
@@ -17,7 +13,6 @@ import seaborn as sns
 
 sns.set_style('whitegrid')
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_PATH    = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_tfidf_lemmatized.json'
@@ -46,9 +41,6 @@ def regenerate(year: int):
     pkl_path = out_dir / f'logreg_pipeline_{year}.pkl'
     json_path = out_dir / f'results_summary_{year}.json'
 
-    print(f'\n{"="*60}')
-    print(f'  {year}-es LogReg vizualizációk újragenerálása')
-    print(f'{"="*60}')
 
     with open(pkl_path, 'rb') as f:
         pipeline = pickle.load(f)
@@ -68,7 +60,6 @@ def regenerate(year: int):
     top_hvg   = feat_df.nsmallest(20, 'coefficient')
     top_origo = feat_df.nlargest(20, 'coefficient')
 
-    # ── 1. Confusion matrix ──────────────────────────────────────────────────
     _, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                 xticklabels=['HVG', 'Origo'],
@@ -80,9 +71,7 @@ def regenerate(year: int):
     plt.tight_layout()
     plt.savefig(out_dir / 'confusion_matrix.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ confusion_matrix.png')
 
-    # ── 2. ROC curve ─────────────────────────────────────────────────────────
     fpr, tpr, _ = roc_curve(y_test, y_proba)
     _, ax = plt.subplots(figsize=(8, 6))
     ax.plot(fpr, tpr, linewidth=2, label=f'ROC Görbe (AUC = {test_auc:.4f})')
@@ -96,9 +85,7 @@ def regenerate(year: int):
     plt.tight_layout()
     plt.savefig(out_dir / 'roc_curve.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ roc_curve.png')
 
-    # ── 3. Feature importance ─────────────────────────────────────────────────
     _, axes = plt.subplots(1, 2, figsize=(16, 8))
 
     for ax, df_feat, color, title in [
@@ -119,9 +106,7 @@ def regenerate(year: int):
     plt.tight_layout()
     plt.savefig(out_dir / 'feature_importance.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ feature_importance.png')
 
-    # ── 4. Probability distribution ───────────────────────────────────────────
     _, ax = plt.subplots(figsize=(10, 6))
     sns.kdeplot(y_proba[y_test == 0], fill=True, alpha=0.5, color='steelblue',
                 label='HVG', ax=ax)
@@ -139,23 +124,15 @@ def regenerate(year: int):
     plt.tight_layout()
     plt.savefig(out_dir / 'probability_distribution.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ probability_distribution.png')
 
 
 def main():
-    print('\n' + '=' * 60)
-    print('LOGREG VIZUALIZÁCIÓK ÚJRAGENERÁLÁSA')
-    print('=' * 60)
 
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         _ = json.load(f)   # validate data path exists
 
     for year in MODEL_YEARS:
         regenerate(year)
-
-    print('\n' + '=' * 60)
-    print('  KÉSZ')
-    print('=' * 60)
 
 
 if __name__ == '__main__':

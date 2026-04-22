@@ -1,13 +1,3 @@
-"""
-Statistical significance test: Index articles 2019 vs 2021
-using the trained HVG–Origo LogReg pipelines.
-
-For each model year (2019, 2021):
-  - Predict P(Origo) for all Index articles
-  - Split by publication year (2019 vs 2021)
-  - Run: Mann-Whitney U, Kolmogorov-Smirnov, chi-square on proportions, Cohen's d
-  - Save results + plot
-"""
 import json
 import pickle
 import numpy as np
@@ -22,7 +12,6 @@ import seaborn as sns
 
 sns.set_style('whitegrid')
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 PIPELINE_BASE = PROJECT_ROOT / 'results' / 'logreg_results'
@@ -33,12 +22,9 @@ MODEL_YEARS   = [2019, 2021]
 ALPHA         = 0.05
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Helpers
-# ─────────────────────────────────────────────────────────────────────────────
 
 def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
-    """Pooled Cohen's d."""
     pooled_std = np.sqrt((a.std(ddof=1)**2 + b.std(ddof=1)**2) / 2)
     return (a.mean() - b.mean()) / pooled_std if pooled_std > 0 else 0.0
 
@@ -52,7 +38,6 @@ def effect_label(d: float) -> str:
 
 
 def run_tests(a: np.ndarray, b: np.ndarray, label_a: str, label_b: str) -> dict:
-    """Run full test battery comparing two arrays of probabilities."""
     mw  = stats.mannwhitneyu(a, b, alternative='two-sided')
     ks  = stats.ks_2samp(a, b)
 
@@ -97,9 +82,7 @@ def run_tests(a: np.ndarray, b: np.ndarray, label_a: str, label_b: str) -> dict:
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Report formatting
-# ─────────────────────────────────────────────────────────────────────────────
 
 def format_test(name: str, stat: float, p: float, sig: bool) -> str:
     sig_str = '✓ SZIGNIFIKÁNS' if sig else '✗ nem szignifikáns'
@@ -107,7 +90,6 @@ def format_test(name: str, stat: float, p: float, sig: bool) -> str:
 
 
 def print_and_collect(lines: list, text: str):
-    print(text)
     lines.append(text)
 
 
@@ -118,7 +100,6 @@ def write_report(all_results: dict, path: Path):
 
     def w(t=''):
         lines.append(t)
-        print(t)
 
     w(sep)
     w('STATISZTIKAI SZIGNIFIKANCIA-VIZSGÁLAT')
@@ -167,12 +148,9 @@ def write_report(all_results: dict, path: Path):
     w()
     w(sep)
     path.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'\n✓ Riport mentve: {path}')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Visualization
-# ─────────────────────────────────────────────────────────────────────────────
 
 def create_plot(all_results: dict, probas: dict):
     fig, axes = plt.subplots(1, len(MODEL_YEARS), figsize=(14, 5), sharey=False)
@@ -216,42 +194,30 @@ def create_plot(all_results: dict, probas: dict):
     out = OUTPUT_DIR / 'significance_test_plot.png'
     plt.savefig(out, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ Ábra mentve: {out}')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Main
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 70)
-    print('INDEX CIKKEK SZIGNIFIKANCIA-VIZSGÁLATA (LogReg)')
-    print('=' * 70)
 
     # Load Index data once
-    print(f'\nIndex adatok betöltése: {INDEX_DATA}')
     with open(INDEX_DATA, 'r', encoding='utf-8') as f:
         data = json.load(f)
     df = pd.DataFrame(data)
-    print(f'✓ {len(df):,} cikk betöltve')
 
     mask_19 = df['year'] == '2019'
     mask_21 = df['year'] == '2021'
-    print(f'  2019: {mask_19.sum():,}  |  2021: {mask_21.sum():,}')
 
     all_results = {}
     all_probas  = {}
 
     for model_year in MODEL_YEARS:
-        print(f'\n{"─"*55}')
-        print(f'  {model_year}-es pipeline betöltése …')
         path = PIPELINE_BASE / str(model_year) / f'logreg_pipeline_{model_year}.pkl'
         with open(path, 'rb') as f:
             pipeline = pickle.load(f)
 
-        print('  Előrejelzés …')
         proba = pipeline.predict_proba(df['text'].tolist())[:, 1]
 
         p19 = proba[mask_19.values]
@@ -261,7 +227,6 @@ def main():
         all_results[model_year] = run_tests(p19, p21, '2019', '2021')
 
     # Report
-    print('\n' + '=' * 70)
     write_report(all_results, OUTPUT_DIR / 'significance_test_report.txt')
 
     # Plot
@@ -274,11 +239,6 @@ def main():
         json_out[str(model_year)] = r
     with open(OUTPUT_DIR / 'significance_test_results.json', 'w', encoding='utf-8') as f:
         json.dump(json_out, f, ensure_ascii=False, indent=2)
-    print(f'✓ JSON mentve: {OUTPUT_DIR / "significance_test_results.json"}')
-
-    print('\n' + '=' * 70)
-    print(f'  KÉSZ  |  Eredmények: {OUTPUT_DIR}')
-    print('=' * 70)
 
 
 if __name__ == '__main__':

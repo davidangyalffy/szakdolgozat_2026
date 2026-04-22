@@ -16,7 +16,6 @@ from lime.lime_text import LimeTextExplainer
 
 sns.set_style('whitegrid')
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 MODEL_BASE   = PROJECT_ROOT / 'results' / 'lstm_results'
@@ -32,36 +31,27 @@ def load_model_and_tokenizer(model_year: int):
     model_path     = MODEL_BASE / str(model_year) / f'lstm_model_{model_year}.keras'
     tokenizer_path = MODEL_BASE / str(model_year) / f'tokenizer_{model_year}.pkl'
 
-    print(f'Modell betöltése: {model_path}')
     model = tf.keras.models.load_model(str(model_path))
 
-    print(f'Tokenizer betöltése: {tokenizer_path}')
     with open(tokenizer_path, 'rb') as f:
         tokenizer = pickle.load(f)
 
-    print('✓ Modell és tokenizer betöltve')
     return model, tokenizer
 
 
 def load_index_data() -> pd.DataFrame:
-    print(f'\nIndex cikkek betöltése: {INDEX_DATA}')
     with open(INDEX_DATA, 'r', encoding='utf-8') as f:
         data = json.load(f)
     df = pd.DataFrame(data)
-    print(f'✓ Betöltve: {len(df):,} cikk')
-    print('\nÉv szerinti megoszlás:')
-    print(df['year'].value_counts().sort_index().to_string())
     return df
 
 
 def predict(model, tokenizer, texts: list) -> tuple[np.ndarray, np.ndarray]:
-    print('\nTokenizálás és előrejelzés …')
     seqs   = tokenizer.texts_to_sequences(texts)
     padded = pad_sequences(seqs, maxlen=MAX_SEQUENCE_LEN,
                            padding='post', truncating='post')
     y_proba = model.predict(padded, batch_size=BATCH_SIZE, verbose=1).flatten()
     y_pred  = (y_proba >= 0.5).astype(int)
-    print('✓ Előrejelzés kész')
     return y_pred, y_proba
 
 
@@ -70,30 +60,12 @@ def print_report(df: pd.DataFrame, y_pred: np.ndarray, y_proba: np.ndarray):
     origo_like = (y_pred == 1).sum()
     hvg_like   = (y_pred == 0).sum()
 
-    print('\n' + '=' * 70)
-    print('EREDMÉNYEK – INDEX CIKKEK OSZTÁLYOZÁSA (HVG vs Origo modell)')
-    print('=' * 70)
-
-    print(f'\nÖsszes cikk: {n:,}')
-    print(f'\n  Origo-szerű (P(Origo) ≥ 0.5): {origo_like:>6,}  ({100*origo_like/n:.1f}%)')
-    print(f'  HVG-szerű   (P(Origo) < 0.5): {hvg_like:>6,}  ({100*hvg_like/n:.1f}%)')
-    print(f'\n  Átlagos P(Origo):  {y_proba.mean():.4f}')
-    print(f'  Mediális P(Origo): {np.median(y_proba):.4f}')
-
-    print('\n' + '-' * 70)
-    print('ÉV SZERINTI BONTÁS')
-    print('-' * 70)
-    print(f"{'Év':<8} {'N':>6}  {'Origo-szerű':>12}  {'Origo %':>8}  {'Átlag P(Origo)':>15}")
-    print('-' * 70)
 
     for yr in sorted(df['year'].unique()):
         mask    = df['year'].values == yr
         n_yr    = mask.sum()
         ol_yr   = (y_pred[mask] == 1).sum()
         mean_yr = y_proba[mask].mean()
-        print(f'{yr:<8} {n_yr:>6}  {ol_yr:>12,}  {100*ol_yr/n_yr:>7.1f}%  {mean_yr:>15.4f}')
-
-    print('=' * 70)
 
 
 def save_results(df: pd.DataFrame, y_pred: np.ndarray, y_proba: np.ndarray,
@@ -133,12 +105,10 @@ def save_results(df: pd.DataFrame, y_pred: np.ndarray, y_proba: np.ndarray,
     out = output_dir / f'results_index_{model_year}.json'
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
-    print(f'\n✓ Eredmények mentve: {out}')
 
 
 def create_visualizations(df: pd.DataFrame, y_proba: np.ndarray,
                            model_year: int, output_dir: Path):
-    print('\nVizualizációk készítése …')
 
     # 1. Overall KDE
     _, ax = plt.subplots(figsize=(10, 6))
@@ -158,7 +128,6 @@ def create_visualizations(df: pd.DataFrame, y_proba: np.ndarray,
     p = output_dir / 'probability_distribution.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ Mentve: {p}')
 
     # 2. KDE by year
     years   = sorted(df['year'].unique())
@@ -183,13 +152,10 @@ def create_visualizations(df: pd.DataFrame, y_proba: np.ndarray,
     p = output_dir / 'probability_distribution_by_year.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ Mentve: {p}')
 
 
 def run_lime_by_year(df: pd.DataFrame, model, tokenizer,
                      model_year: int, output_dir: Path):
-    """Run LIME separately for each publication year and save bar charts."""
-    print('\nLIME elemzés évenkénti bontásban …')
 
     def predict_fn(texts):
         seqs   = tokenizer.texts_to_sequences(texts)
@@ -201,7 +167,6 @@ def run_lime_by_year(df: pd.DataFrame, model, tokenizer,
     explainer = LimeTextExplainer(class_names=['HVG', 'Origo'])
 
     for yr in sorted(df['year'].unique()):
-        print(f'\n  Év: {yr}')
         yr_texts = df[df['year'] == yr]['text'].tolist()
         n        = min(LIME_SAMPLES, len(yr_texts))
         rng      = np.random.default_rng(42)
@@ -211,7 +176,6 @@ def run_lime_by_year(df: pd.DataFrame, model, tokenizer,
         word_scores: dict[str, list[float]] = {}
         for i, text in enumerate(sample):
             if (i + 1) % 50 == 0:
-                print(f'    {i + 1}/{n} …')
             exp = explainer.explain_instance(
                 text, predict_fn, num_features=20, num_samples=500
             )
@@ -224,7 +188,6 @@ def run_lime_by_year(df: pd.DataFrame, model, tokenizer,
         json_path = output_dir / f'lime_scores_{yr}.json'
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(mean_scores, f, ensure_ascii=False, indent=2)
-        print(f'  ✓ lime_scores_{yr}.json mentve')
 
         sorted_scores = sorted(mean_scores.items(), key=lambda x: x[1])
         hvg_top   = sorted_scores[:20]          # most negative → HVG
@@ -250,7 +213,6 @@ def run_lime_by_year(df: pd.DataFrame, model, tokenizer,
             out = output_dir / fname
             plt.savefig(out, dpi=300, bbox_inches='tight')
             plt.close()
-            print(f'  ✓ {fname} mentve')
 
 
 def main():
@@ -264,9 +226,6 @@ def main():
     output_dir = OUTPUT_BASE / f'lstm_{model_year}'
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 70)
-    print(f'INDEX CIKKEK ELEMZÉSE – {model_year}-es LSTM modell')
-    print('=' * 70)
 
     model, tokenizer = load_model_and_tokenizer(model_year)
     df               = load_index_data()
@@ -276,9 +235,6 @@ def main():
     save_results(df, y_pred, y_proba, model_year, output_dir)
     create_visualizations(df, y_proba, model_year, output_dir)
     run_lime_by_year(df, model, tokenizer, model_year, output_dir)
-
-    print(f'\nMinden eredmény mentve: {output_dir}')
-    print('=' * 70)
 
 
 if __name__ == '__main__':

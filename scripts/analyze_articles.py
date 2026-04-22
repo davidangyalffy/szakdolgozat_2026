@@ -22,15 +22,11 @@ HUNGARIAN_STOPWORDS = {
 }
 
 def load_data(filename: str) -> List[dict]:
-    """Load JSON data from file"""
-    print(f"Loading data from {filename}...")
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    print(f"Loaded {len(data)} articles\n")
     return data
 
 def tokenize(text: str) -> List[str]:
-    """Tokenize text into words, removing punctuation and converting to lowercase"""
     if not text:
         return []
     # Remove punctuation and convert to lowercase
@@ -40,10 +36,6 @@ def tokenize(text: str) -> List[str]:
     return words
 
 def calculate_basic_stats(data: List[dict]) -> dict:
-    """Calculate basic statistics about article content"""
-    print("=" * 60)
-    print("BASIC STATISTICS")
-    print("=" * 60)
 
     lengths = [len(article['content']) if article['content'] else 0 for article in data]
     word_counts = [len(tokenize(article['content'])) if article['content'] else 0 for article in data]
@@ -65,33 +57,10 @@ def calculate_basic_stats(data: List[dict]) -> dict:
         'longest_article': data[max_idx]
     }
 
-    print(f"Total articles: {stats['total_articles']}")
-    print(f"\nContent Length (characters):")
-    print(f"  Average: {stats['avg_length']:.2f}")
-    print(f"  Median: {stats['median_length']:.2f}")
-    print(f"  Std Dev: {stats['std_length']:.2f}")
-    print(f"  Shortest: {stats['min_length']}")
-    print(f"  Longest: {stats['max_length']}")
-
-    print(f"\nWord Count (excluding stop words):")
-    print(f"  Average: {stats['avg_word_count']:.2f}")
-    print(f"  Median: {stats['median_word_count']:.2f}")
-
-    print(f"\nShortest article (ID: {stats['shortest_article']['id']}):")
-    print(f"  Title: {stats['shortest_article']['title']}")
-    print(f"  Length: {stats['min_length']} characters")
-
-    print(f"\nLongest article (ID: {stats['longest_article']['id']}):")
-    print(f"  Title: {stats['longest_article']['title']}")
-    print(f"  Length: {stats['max_length']} characters")
 
     return stats, lengths, word_counts
 
 def get_top_words(data: List[dict], top_n: int = 50) -> List[Tuple[str, int]]:
-    """Get the most common words across all articles"""
-    print(f"\n{'=' * 60}")
-    print(f"TOP {top_n} MOST COMMON WORDS")
-    print("=" * 60)
 
     all_words = []
     for article in data:
@@ -102,18 +71,12 @@ def get_top_words(data: List[dict], top_n: int = 50) -> List[Tuple[str, int]]:
     top_words = word_freq.most_common(top_n)
 
     for i, (word, count) in enumerate(top_words[:20], 1):
-        print(f"{i:2d}. {word:20s} - {count:5d} occurrences")
 
     if top_n > 20:
-        print(f"\n... and {top_n - 20} more words")
 
     return top_words
 
 def get_top_bigrams(data: List[dict], top_n: int = 20) -> List[Tuple[Tuple[str, str], int]]:
-    """Get the most common bigrams (word pairs) across all articles"""
-    print(f"\n{'=' * 60}")
-    print(f"TOP {top_n} MOST COMMON BIGRAMS (Word Pairs)")
-    print("=" * 60)
 
     all_bigrams = []
     for article in data:
@@ -126,28 +89,18 @@ def get_top_bigrams(data: List[dict], top_n: int = 20) -> List[Tuple[Tuple[str, 
     top_bigrams = bigram_freq.most_common(top_n)
 
     for i, (bigram, count) in enumerate(top_bigrams, 1):
-        print(f"{i:2d}. '{bigram[0]} {bigram[1]}' - {count:4d} occurrences")
 
     return top_bigrams
 
 def analyze_by_year(data: List[dict]) -> dict:
-    """Analyze article distribution by year"""
-    print(f"\n{'=' * 60}")
-    print("ARTICLES BY YEAR")
-    print("=" * 60)
 
     year_counts = Counter([article['year'] for article in data if article['year']])
 
     for year in sorted(year_counts.keys()):
-        print(f"{year}: {year_counts[year]:5d} articles")
 
     return year_counts
 
 def create_visualizations(stats, lengths, word_counts, top_words, top_bigrams, year_counts):
-    """Create various visualizations"""
-    print(f"\n{'=' * 60}")
-    print("CREATING VISUALIZATIONS")
-    print("=" * 60)
 
     # Create a figure with multiple subplots
     fig = plt.figure(figsize=(20, 12))
@@ -222,7 +175,6 @@ def create_visualizations(stats, lengths, word_counts, top_words, top_bigrams, y
 
     plt.tight_layout()
     plt.savefig('article_statistics.png', dpi=300, bbox_inches='tight')
-    print("Saved visualization to: article_statistics.png")
 
     # Additional visualization: Top 50 words (larger version)
     fig2, ax = plt.subplots(figsize=(12, 16))
@@ -237,15 +189,9 @@ def create_visualizations(stats, lengths, word_counts, top_words, top_bigrams, y
     plt.grid(True, alpha=0.3, axis='x')
     plt.tight_layout()
     plt.savefig('top_50_words.png', dpi=300, bbox_inches='tight')
-    print("Saved top 50 words visualization to: top_50_words.png")
 
-    print("\nAll visualizations created successfully!")
 
 def save_statistics_report(stats, top_words, top_bigrams, year_counts):
-    """Save a text report of all statistics"""
-    print(f"\n{'=' * 60}")
-    print("SAVING REPORT")
-    print("=" * 60)
 
     with open('article_statistics_report.txt', 'w', encoding='utf-8') as f:
         f.write("=" * 60 + "\n")
@@ -292,7 +238,6 @@ def save_statistics_report(stats, top_words, top_bigrams, year_counts):
         for year in sorted(year_counts.keys()):
             f.write(f"{year}: {year_counts[year]:5d} articles\n")
 
-    print("Saved report to: article_statistics_report.txt")
 
 def main():
     # Load data
@@ -314,13 +259,6 @@ def main():
     # Save report
     save_statistics_report(stats, top_words, top_bigrams, year_counts)
 
-    print(f"\n{'=' * 60}")
-    print("ANALYSIS COMPLETE!")
-    print("=" * 60)
-    print("\nGenerated files:")
-    print("  - article_statistics.png (main visualizations)")
-    print("  - top_50_words.png (detailed word frequency)")
-    print("  - article_statistics_report.txt (full text report)")
 
 if __name__ == "__main__":
     main()

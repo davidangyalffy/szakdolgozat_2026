@@ -1,14 +1,3 @@
-"""
-Select 3 representative articles from the HVG/Origo test set and explain
-each with a LIME bar chart:
-
-  1. High-confidence correct prediction  (max(P, 1-P) >= CONFIDENCE_THRESHOLD)
-  2. Uncertain prediction                (UNCERTAIN_LOW <= P(Origo) <= UNCERTAIN_HIGH)
-  3. Falsely classified article          (y_pred != y_true)
-
-Articles are filtered to be short (word count <= MAX_WORDS) to keep
-LIME explanations readable. Run with --year 2019 or --year 2021.
-"""
 import argparse
 import json
 import pickle
@@ -28,13 +17,11 @@ from lime.lime_text import LimeTextExplainer
 
 sns.set_style('whitegrid')
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_PATH    = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_lstm_lemmatized.json'
 MODEL_BASE   = PROJECT_ROOT / 'results' / 'lstm_results'
 
-# ── Configuration ──────────────────────────────────────────────────────────────
 MAX_WORDS            = 150    # articles longer than this are excluded
 CONFIDENCE_THRESHOLD = 0.85   # minimum max(P, 1-P) for "high confidence"
 UNCERTAIN_LOW        = 0.40
@@ -46,8 +33,6 @@ LIME_NUM_SAMPLES     = 500
 TEST_SIZE            = 0.2
 RANDOM_STATE         = 67
 
-
-# ── Helpers ────────────────────────────────────────────────────────────────────
 
 def load_data(year: int):
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
@@ -91,7 +76,6 @@ def make_predict_fn(model, tokenizer):
 
 
 def select_articles(texts, y_true, y_proba, df_test):
-    """Return indices of the three example articles."""
     word_counts = np.array([len(t.split()) for t in texts])
     short_mask  = word_counts <= MAX_WORDS
     y_pred      = (y_proba >= 0.5).astype(int)
@@ -145,18 +129,11 @@ def lime_bar(text, predict_fn, label, subtitle, color, out_path):
     plt.tight_layout()
     plt.savefig(out_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'  ✓ {out_path.name}')
 
 
 def print_article_info(tag, text, true_label, proba, portal, word_count):
     true_str = 'Origo' if true_label == 1 else 'HVG'
     pred_str = 'Origo' if proba >= 0.5 else 'HVG'
-    print(f'\n  [{tag}]')
-    print(f'    Portal:        {portal}')
-    print(f'    Valódi osztály: {true_str}')
-    print(f'    P(Origo):      {proba:.4f}  →  predikció: {pred_str}')
-    print(f'    Szavak száma:  {word_count}')
-    print(f'    Szöveg (első 120 kar): {text[:120]} …')
 
 
 def main():
@@ -170,16 +147,11 @@ def main():
     out_dir = MODEL_BASE / str(year) / 'article_examples'
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 65)
-    print(f'  LSTM CIKK-PÉLDÁK LIME MAGYARÁZATTAL  ({year})')
-    print('=' * 65)
 
-    print('\nAdatok és modell betöltése …')
     texts, y_true, df_test = load_data(year)
     model, tokenizer       = load_model_and_tokenizer(year)
     predict_fn             = make_predict_fn(model, tokenizer)
 
-    print('Előrejelzés a teszthalmazon …')
     y_proba = predict_proba(model, tokenizer, texts)
 
     idx_conf, idx_unc, idx_false = select_articles(texts, y_true, y_proba, df_test)
@@ -190,9 +162,6 @@ def main():
         (idx_false, 'Téves osztályozás',              'misclassified'),
     ]
 
-    print('\n' + '-' * 65)
-    print('KIVÁLASZTOTT CIKKEK')
-    print('-' * 65)
 
     info_records = []
     for idx, label, slug in examples:
@@ -217,10 +186,8 @@ def main():
     info_path = out_dir / f'article_examples_{year}.json'
     with open(info_path, 'w', encoding='utf-8') as f:
         json.dump(info_records, f, ensure_ascii=False, indent=2)
-    print(f'\n✓ Cikk-metaadatok mentve: {info_path.name}')
 
     # LIME bar charts
-    print('\nLIME magyarázatok generálása …')
     for idx, label, slug in examples:
         text     = texts[idx]
         proba    = float(y_proba[idx])
@@ -240,10 +207,6 @@ def main():
             color=color,
             out_path=out_dir / f'lime_{slug}_{year}.png',
         )
-
-    print('\n' + '=' * 65)
-    print(f'  KÉSZ  |  Eredmények: {out_dir}')
-    print('=' * 65)
 
 
 if __name__ == '__main__':

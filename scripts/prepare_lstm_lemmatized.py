@@ -10,7 +10,6 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 _DEFAULT_INPUT  = PROJECT_ROOT / 'processed_data' / 'final' / 'hvg_itthon_combined.json'
 _DEFAULT_OUTPUT = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_lstm_lemmatized.json'
 
-# ── Portal stopwords only ─────────────────────────────────────────────────────
 # General Hungarian stopwords are intentionally kept — LSTM needs sequential context.
 # Only portal names and their inflected forms are removed to prevent data leakage.
 PORTAL_STOPWORDS = {
@@ -29,19 +28,14 @@ PORTAL_STOPWORDS = {
     'indexen', 'indexvel', 'indexben',
 }
 
-print(f"✓ Portal stopwords loaded: {len(PORTAL_STOPWORDS)} entries")
 
-# ── Load spaCy model ──────────────────────────────────────────────────────────
-print("Loading hu_core_news_lg …")
 nlp = spacy.load(
     'hu_core_news_lg',
     disable=['trainable_lemmatizer', 'parser', 'ner', 'senter']
 )
 nlp.max_length = 2_000_000
-print(f"✓ Model loaded  |  pipeline: {nlp.pipe_names}")
 
 
-# ── Pre-cleaning ──────────────────────────────────────────────────────────────
 _URL_RE   = re.compile(r'http\S+|www\.\S+')
 _EMAIL_RE = re.compile(r'\S+@\S+')
 _CHAR_RE  = re.compile(r'[^a-záéíóöőúüű\s]')
@@ -58,12 +52,7 @@ def pre_clean(text: str) -> str:
     return text
 
 
-# ── Lemmatize + filter portal names only ──────────────────────────────────────
 def lemmatize_and_filter(doc: spacy.tokens.Doc) -> str:
-    """
-    Lemmatize all tokens, keeping general Hungarian stopwords.
-    Only removes portal names and non-Hungarian tokens.
-    """
     tokens = []
     for token in doc:
         if token.is_space or token.is_punct:
@@ -79,7 +68,6 @@ def lemmatize_and_filter(doc: spacy.tokens.Doc) -> str:
     return ' '.join(tokens)
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description='Create lemmatized dataset for LSTM')
     parser.add_argument('--input',  type=Path, default=_DEFAULT_INPUT,
@@ -90,14 +78,9 @@ def main():
     INPUT_PATH  = args.input
     OUTPUT_PATH = args.output
 
-    print('\n' + '=' * 65)
-    print('CREATING LEMMATIZED DATASET FOR LSTM')
-    print('=' * 65)
 
-    print(f'\nLoading {INPUT_PATH} …')
     with open(INPUT_PATH, 'r', encoding='utf-8') as f:
         articles = json.load(f)
-    print(f'Loaded {len(articles):,} articles')
 
     raw_texts = [
         pre_clean(f"{a.get('title', '')} {a.get('content', '')}")
@@ -105,16 +88,13 @@ def main():
     ]
 
     batch_size = 500
-    print(f'\nRunning lemmatization  batch_size={batch_size} …')
     lemmatized_texts = []
     total = len(raw_texts)
 
     for i, doc in enumerate(nlp.pipe(raw_texts, batch_size=batch_size)):
         lemmatized_texts.append(lemmatize_and_filter(doc))
         if (i + 1) % 1000 == 0:
-            print(f'  {i + 1:>6,} / {total:,}  ({100*(i+1)/total:.1f}%)')
 
-    print(f'  {total:>6,} / {total:,}  (100.0%)  ✓ done')
 
     output = []
     skipped = 0
@@ -132,24 +112,11 @@ def main():
         })
         new_id += 1
 
-    print(f'\nArticles kept:    {len(output):,}')
-    print(f'Articles skipped: {skipped:,}  (text < 50 chars after lemmatization)')
 
     lengths = [len(r['text'].split()) for r in output]
-    print(f'\nWord count after lemmatization:')
-    print(f'  Average : {sum(lengths)/len(lengths):.1f}')
-    print(f'  Median  : {sorted(lengths)[len(lengths)//2]}')
-    print(f'  Min     : {min(lengths)}')
-    print(f'  Max     : {max(lengths)}')
 
-    print(f'\nSaving to {OUTPUT_PATH} …')
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
-
-    print(f'✓ Saved  |  {len(output):,} articles  |  {OUTPUT_PATH.stat().st_size / 1e6:.1f} MB')
-    print('\n' + '=' * 65)
-    print('DONE')
-    print('=' * 65)
 
 
 if __name__ == '__main__':

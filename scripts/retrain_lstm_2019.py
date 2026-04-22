@@ -1,9 +1,3 @@
-"""
-Retrain the best 2019 LSTM model N_RUNS times with patience=3.
-Best params from grid search: lstm_units=128, dropout=0.25, lr=0.001
-Each run uses a different random seed. The best run (lowest val_loss)
-is saved as the final model. The history plot shows mean ± std bands.
-"""
 import json
 import pickle
 import numpy as np
@@ -30,14 +24,12 @@ from sklearn.utils.class_weight import compute_class_weight
 
 sns.set_style('whitegrid')
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR      = Path(__file__).parent
 PROJECT_ROOT    = SCRIPT_DIR.parent
 DATA_PATH       = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_lstm_lemmatized.json'
 FASTTEXT_PATH   = PROJECT_ROOT / 'models' / 'cc.hu.300.bin'
 OUTPUT_DIR      = PROJECT_ROOT / 'results' / 'lstm_results' / '2019'
 
-# ── Configuration ─────────────────────────────────────────────────────────────
 YEAR              = 2019
 LSTM_UNITS        = 128
 DROPOUT_RATE      = 0.3
@@ -73,7 +65,6 @@ def build_model(vocab_size, embedding_matrix):
 
 
 def pad_histories(histories: list[dict], key: str) -> np.ndarray:
-    """Pad run histories to the same length with NaN for mean/std computation."""
     max_len = max(len(h[key]) for h in histories)
     arr = np.full((len(histories), max_len), np.nan)
     for i, h in enumerate(histories):
@@ -93,18 +84,11 @@ def plot_mean_std(ax, arr: np.ndarray, color: str, label: str):
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 65)
-    print(f'  LSTM  {N_RUNS}× FUTTATÁS  —  {YEAR}  |  patience={PATIENCE}')
-    print(f'  lstm_units={LSTM_UNITS}, dropout={DROPOUT_RATE}, lr={LEARNING_RATE}')
-    print('=' * 65)
 
-    # ── Load & prepare data (fixed split, same for all runs) ──────────────────
-    print('\nAdatok betöltése …')
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         articles = json.load(f)
     df = pd.DataFrame(articles)
     df = df[df['year'] == str(YEAR)].dropna(subset=['text']).reset_index(drop=True)
-    print(f'  {len(df):,} cikk ({YEAR})')
 
     y     = (df['portal'] == 'origo').astype(int)
     texts = df['text'].tolist()
@@ -112,7 +96,6 @@ def main():
         texts, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
 
-    print('\nTokenizálás …')
     tokenizer = Tokenizer(num_words=MAX_VOCAB_SIZE, oov_token='<OOV>')
     tokenizer.fit_on_texts(texts_train)
     vocab_size = min(len(tokenizer.word_index) + 1, MAX_VOCAB_SIZE + 1)
@@ -125,21 +108,17 @@ def main():
     X_test  = encode(texts_test)
     y_train = y_train.reset_index(drop=True)
     y_test  = y_test.reset_index(drop=True)
-    print(f'  Szótár: {vocab_size:,}  |  Tanító: {X_train.shape}  |  Teszt: {X_test.shape}')
 
-    print(f'\nFastText betöltése: {FASTTEXT_PATH}')
     ft = fasttext.load_model(str(FASTTEXT_PATH))
     matrix = np.zeros((vocab_size, EMBEDDING_DIM), dtype=np.float32)
     for word, idx in tokenizer.word_index.items():
         if idx < vocab_size:
             matrix[idx] = ft.get_word_vector(word)
     del ft
-    print('  ✓ Beágyazási mátrix kész, FastText felszabadítva')
 
     cw = compute_class_weight('balanced', classes=np.array([0, 1]), y=y_train.values)
     class_weight_dict = {0: float(cw[0]), 1: float(cw[1])}
 
-    # ── N_RUNS independent training runs ─────────────────────────────────────
     all_histories  = []
     all_metrics    = []
     best_val_loss  = np.inf
@@ -150,9 +129,6 @@ def main():
         seed = RANDOM_STATE + run
         tf.random.set_seed(seed)
         np.random.seed(seed)
-        print(f'\n{"─"*55}')
-        print(f'  Futtatás {run + 1}/{N_RUNS}  (seed={seed})')
-        print(f'{"─"*55}')
 
         model = build_model(vocab_size, matrix)
         ckpt_path = OUTPUT_DIR / f'_tmp_run{run}.keras'
@@ -192,10 +168,6 @@ def main():
         all_metrics.append(metrics)
         all_histories.append(history.history)
 
-        print(f'  → Legjobb epoch: {run_best_epoch}  |  '
-              f'val_loss: {run_best_loss:.4f}  |  '
-              f'test_acc: {metrics["test_accuracy"]:.4f}  |  '
-              f'AUC: {metrics["test_auc"]:.4f}')
 
         if run_best_loss < best_val_loss:
             best_val_loss = run_best_loss
@@ -206,27 +178,12 @@ def main():
 
     del matrix
 
-    # ── Summary table ─────────────────────────────────────────────────────────
-    print(f'\n{"="*65}')
-    print(f'  ÖSSZEFOGLALÓ  ({N_RUNS} futtatás)')
-    print(f'{"="*65}')
-    print(f'  {"Futtatás":>8}  {"Legjobb ep.":>11}  {"val_loss":>9}  {"test_acc":>9}  {"AUC":>7}')
-    print(f'  {"─"*55}')
     for m in all_metrics:
         marker = ' ◀ legjobb' if m['run'] == best_run_idx + 1 else ''
-        print(f'  {m["run"]:>8}  {m["best_epoch"]:>11}  '
-              f'{m["best_val_loss"]:>9.4f}  {m["test_accuracy"]:>9.4f}  '
-              f'{m["test_auc"]:>7.4f}{marker}')
 
     accs = [m['test_accuracy'] for m in all_metrics]
     aucs = [m['test_auc']      for m in all_metrics]
-    print(f'  {"─"*55}')
-    print(f'  Átlag ± szórás  —  '
-          f'Acc: {np.mean(accs):.4f} ± {np.std(accs):.4f}  |  '
-          f'AUC: {np.mean(aucs):.4f} ± {np.std(aucs):.4f}')
-    print(f'{"="*65}')
 
-    # ── Mean ± std history plot ───────────────────────────────────────────────
     train_loss_arr = pad_histories(all_histories, 'loss')
     val_loss_arr   = pad_histories(all_histories, 'val_loss')
     train_acc_arr  = pad_histories(all_histories, 'accuracy')
@@ -255,9 +212,7 @@ def main():
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'training_history.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'\n✓ training_history.png mentve')
 
-    # ── Save best model & tokenizer ───────────────────────────────────────────
     best_model_path = OUTPUT_DIR / f'_tmp_run{best_run_idx}.keras'
     final_model = tf.keras.models.load_model(str(best_model_path))
     final_model.save(str(OUTPUT_DIR / f'lstm_model_{YEAR}.keras'))
@@ -276,7 +231,6 @@ def main():
     y_pred   = (y_proba >= 0.5).astype(int)
     best_m   = all_metrics[best_run_idx]
 
-    print(classification_report(y_test, y_pred, target_names=['HVG', 'Origo'], digits=4))
 
     summary = {
         'year': YEAR, 'model': 'BidirectionalLSTM',
@@ -306,16 +260,6 @@ def main():
     }
     with open(OUTPUT_DIR / f'results_summary_{YEAR}.json', 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
-
-    print('\n' + '=' * 65)
-    print(f'  KÉSZ  |  Legjobb futtatás: {best_run_idx + 1}  |  '
-          f'Legjobb epoch: {best_m["best_epoch"]}')
-    print(f'  Acc: {best_m["test_accuracy"]:.4f}  |  AUC: {best_m["test_auc"]:.4f}')
-    print(f'  Átlag ± szórás  —  '
-          f'Acc: {np.mean(accs):.4f} ± {np.std(accs):.4f}  |  '
-          f'AUC: {np.mean(aucs):.4f} ± {np.std(aucs):.4f}')
-    print(f'  Eredmények: {OUTPUT_DIR}')
-    print('=' * 65)
 
 
 if __name__ == '__main__':

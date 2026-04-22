@@ -12,7 +12,6 @@ import seaborn as sns
 
 sns.set_style("whitegrid")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR    = Path(__file__).parent
 PROJECT_ROOT  = SCRIPT_DIR.parent
 PIPELINE_BASE = PROJECT_ROOT / 'results' / 'logreg_results'
@@ -22,30 +21,21 @@ OUTPUT_BASE   = PROJECT_ROOT / 'results' / 'index_analysis'
 
 def load_pipeline(model_year):
     path = PIPELINE_BASE / str(model_year) / f'logreg_pipeline_{model_year}.pkl'
-    print(f"Loading pipeline from: {path}")
     with open(path, 'rb') as f:
         pipeline = pickle.load(f)
-    print(f"✓ Pipeline loaded  (params: {pipeline.named_steps['tfidf'].max_features} features, "
-          f"C={pipeline.named_steps['clf'].C})")
     return pipeline
 
 
 def load_index_data():
-    print(f"\nLoading Index articles from: {INDEX_DATA}")
     with open(INDEX_DATA, 'r', encoding='utf-8') as f:
         data = json.load(f)
     df = pd.DataFrame(data)
-    print(f"✓ Loaded {len(df):,} articles")
-    print(f"\nÉv szerinti megoszlás:")
-    print(df['year'].value_counts().sort_index().to_string())
     return df
 
 
 def predict(pipeline, texts):
-    print("\nPredicting …")
     y_pred  = pipeline.predict(texts)
     y_proba = pipeline.predict_proba(texts)[:, 1]   # P(Origo)
-    print("✓ Predictions complete")
     return y_pred, y_proba
 
 
@@ -54,21 +44,6 @@ def print_report(df, y_pred, y_proba):
     origo_like = (y_pred == 1).sum()
     hvg_like   = (y_pred == 0).sum()
 
-    print("\n" + "=" * 70)
-    print("EREDMÉNYEK – INDEX CIKKEK OSZTÁLYOZÁSA (HVG vs Origo modell)")
-    print("=" * 70)
-
-    print(f"\nÖsszes cikk: {n:,}")
-    print(f"\n  Origo-szerű (P(Origo) ≥ 0.5): {origo_like:>6,}  ({100*origo_like/n:.1f}%)")
-    print(f"  HVG-szerű   (P(Origo) < 0.5): {hvg_like:>6,}  ({100*hvg_like/n:.1f}%)")
-    print(f"\n  Átlagos P(Origo):  {y_proba.mean():.4f}")
-    print(f"  Mediális P(Origo): {np.median(y_proba):.4f}")
-
-    print("\n" + "-" * 70)
-    print("ÉV SZERINTI BONTÁS")
-    print("-" * 70)
-    print(f"{'Év':<8} {'N':>6}  {'Origo-szerű':>12}  {'Origo %':>8}  {'Átlag P(Origo)':>15}")
-    print("-" * 70)
 
     years = sorted(df['year'].unique())
     for yr in years:
@@ -76,9 +51,6 @@ def print_report(df, y_pred, y_proba):
         n_yr     = mask.sum()
         ol_yr    = (y_pred[mask] == 1).sum()
         mean_yr  = y_proba[mask].mean()
-        print(f"{yr:<8} {n_yr:>6}  {ol_yr:>12,}  {100*ol_yr/n_yr:>7.1f}%  {mean_yr:>15.4f}")
-
-    print("=" * 70)
 
 
 def save_results(df, y_pred, y_proba, model_year, output_dir):
@@ -117,11 +89,9 @@ def save_results(df, y_pred, y_proba, model_year, output_dir):
     out = output_dir / f'results_index_{model_year}.json'
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
-    print(f"\n✓ Saved results to: {out}")
 
 
 def create_visualizations(df, y_proba, model_year, output_dir):
-    print("\nKészül a vizualizáció …")
 
     # 1. Overall KDE
     _, ax = plt.subplots(figsize=(10, 6))
@@ -141,7 +111,6 @@ def create_visualizations(df, y_proba, model_year, output_dir):
     p = output_dir / 'probability_distribution.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
     # 2. KDE by year
     years = sorted(df['year'].unique())
@@ -166,7 +135,6 @@ def create_visualizations(df, y_proba, model_year, output_dir):
     p = output_dir / 'probability_distribution_by_year.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
 
 def main():
@@ -180,9 +148,6 @@ def main():
     output_dir = OUTPUT_BASE / str(model_year)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("\n" + "=" * 70)
-    print(f"INDEX CIKKEK ELEMZÉSE – {model_year}-es LogReg modell")
-    print("=" * 70)
 
     pipeline     = load_pipeline(model_year)
     df           = load_index_data()
@@ -192,9 +157,6 @@ def main():
     print_report(df, y_pred, y_proba)
     save_results(df, y_pred, y_proba, model_year, output_dir)
     create_visualizations(df, y_proba, model_year, output_dir)
-
-    print(f"\nMinden eredmény mentve: {output_dir}")
-    print("=" * 70)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,3 @@
-"""
-Descriptive statistics for all three portals (HVG, Origo, Index).
-Compares portals and years (2019 vs 2021).
-Outputs: text report + visualizations in analysis/statistics/
-"""
 import json
 import re
 from collections import Counter
@@ -18,14 +13,12 @@ import seaborn as sns
 sns.set_style('whitegrid')
 plt.rcParams['figure.figsize'] = (12, 6)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 HVG_ORIGO    = PROJECT_ROOT / 'processed_data' / 'final' / 'hvg_itthon_combined.json'
 INDEX        = PROJECT_ROOT / 'processed_data' / 'final' / 'index_itthon_combined.json'
 OUTPUT_DIR   = PROJECT_ROOT / 'results' / 'statistics'
 
-# ── Style constants ───────────────────────────────────────────────────────────
 PORTAL_COLORS  = {'hvg': '#1f77b4', 'origo': '#d62728', 'index': '#2ca02c'}
 YEAR_COLORS    = {'2019': '#ff7f0e', '2021': '#9467bd'}
 YEARS          = ['2019', '2021']
@@ -65,9 +58,7 @@ def fmt(d: dict) -> str:
             f"szórás={d['std']:.1f}  min={d['min']:.0f}  p95={d['p95']:.0f}  max={d['max']:.0f}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Load & prepare
-# ─────────────────────────────────────────────────────────────────────────────
 
 def load_data() -> pd.DataFrame:
     frames = []
@@ -88,9 +79,7 @@ def load_data() -> pd.DataFrame:
     return df
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Text report
-# ─────────────────────────────────────────────────────────────────────────────
 
 def write_report(df: pd.DataFrame, path: Path):
     lines = []
@@ -102,7 +91,6 @@ def write_report(df: pd.DataFrame, path: Path):
 
     h1('LEÍRÓ STATISZTIKÁK — HVG, ORIGO, INDEX (2019 & 2021)')
 
-    # ── Sample sizes ──────────────────────────────────────────────────────────
     h2('1. MINTAMÉRET')
     total = len(df)
     lines.append(f'\nÖsszes cikk (2019+2021): {total:,}\n')
@@ -120,7 +108,6 @@ def write_report(df: pd.DataFrame, path: Path):
         n = (df['year'] == yr).sum()
         lines.append(f'  {"Összesen " + yr:<10} {n:>27,}')
 
-    # ── Word count stats ──────────────────────────────────────────────────────
     h2('2. SZÓSZÁM (cikk = cím + tartalom)')
 
     lines.append(f'\n  {"Portál":<10} {"n":>6}  {"átlag":>7}  {"medián":>7}  '
@@ -139,7 +126,6 @@ def write_report(df: pd.DataFrame, path: Path):
         lines.append(f'  {yr:<10} {d["n"]:>6,}  {d["mean"]:>7.1f}  {d["median"]:>7.1f}  '
                      f'{d["std"]:>7.1f}  {d["min"]:>5.0f}  {d["p95"]:>6.0f}  {d["max"]:>6.0f}')
 
-    # ── Portal × year breakdown ───────────────────────────────────────────────
     h2('3. SZÓSZÁM – PORTÁL × ÉV')
     lines.append(f'\n  {"Portál":<10} {"Év":<6} {"n":>6}  {"átlag":>7}  {"medián":>7}  {"szórás":>7}')
     lines.append(f'  {"-"*50}')
@@ -152,7 +138,6 @@ def write_report(df: pd.DataFrame, path: Path):
             lines.append(f'  {p:<10} {yr:<6} {d["n"]:>6,}  {d["mean"]:>7.1f}  '
                          f'{d["median"]:>7.1f}  {d["std"]:>7.1f}')
 
-    # ── Title length ──────────────────────────────────────────────────────────
     h2('4. CІМSZÓSZÁM')
     lines.append(f'\n  {"Portál":<10} {"átlag":>7}  {"medián":>7}  {"szórás":>7}  {"p95":>6}')
     lines.append(f'  {"-"*42}')
@@ -160,7 +145,6 @@ def write_report(df: pd.DataFrame, path: Path):
         d = describe(df[df['portal'] == p]['title_words'])
         lines.append(f'  {p:<10} {d["mean"]:>7.1f}  {d["median"]:>7.1f}  {d["std"]:>7.1f}  {d["p95"]:>6.0f}')
 
-    # ── Lexical diversity ─────────────────────────────────────────────────────
     h2('5. LEXIKAI DIVERZITÁS (Type-Token Ratio)')
     lines.append(f'\n  {"Portál":<10} {"átlag TTR":>10}  {"medián TTR":>11}  {"szórás":>8}')
     lines.append(f'  {"-"*44}')
@@ -174,7 +158,6 @@ def write_report(df: pd.DataFrame, path: Path):
         d = describe(df[df['year'] == yr]['ttr'])
         lines.append(f'  {yr:<10} {d["mean"]:>10.4f}  {d["median"]:>11.4f}  {d["std"]:>8.4f}')
 
-    # ── Top words per portal ──────────────────────────────────────────────────
     h2('6. LEGGYAKORIBB SZAVAK PORTÁLONKÉNT (top 20)')
     for p in PORTALS:
         lines.append(f'\n  {p.upper()}:')
@@ -185,7 +168,6 @@ def write_report(df: pd.DataFrame, path: Path):
         for rank, (word, cnt) in enumerate(top, 1):
             lines.append(f'    {rank:>2}. {word:<20} {cnt:>7,}')
 
-    # ── Year comparison per portal ────────────────────────────────────────────
     h2('7. ÉVES VÁLTOZÁS PORTÁLONKÉNT (szószám mediánja)')
     lines.append(f'\n  {"Portál":<10} {"2019 med.":>10}  {"2021 med.":>10}  {"változás":>10}')
     lines.append(f'  {"-"*45}')
@@ -198,12 +180,9 @@ def write_report(df: pd.DataFrame, path: Path):
             lines.append(f'  {p:<10} {m19:>10.1f}  {m21:>10.1f}  {chg:>+10.1f}')
 
     path.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'✓ Szöveges riport mentve: {path}')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Visualizations
-# ─────────────────────────────────────────────────────────────────────────────
 
 def plot_article_counts(df: pd.DataFrame):
     counts = (df.groupby(['portal', 'year'])
@@ -255,7 +234,6 @@ def plot_article_counts(df: pd.DataFrame):
     p = OUTPUT_DIR / 'article_counts.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ article_counts.png')
 
 
 def plot_word_count_distribution(df: pd.DataFrame):
@@ -296,7 +274,6 @@ def plot_word_count_distribution(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'word_count_distribution.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ word_count_distribution.png')
 
 
 def plot_word_count_by_portal_and_year(df: pd.DataFrame):
@@ -316,7 +293,6 @@ def plot_word_count_by_portal_and_year(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'word_count_by_portal_year.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ word_count_by_portal_year.png')
 
 
 def plot_length_kde_by_portal(df: pd.DataFrame):
@@ -347,7 +323,6 @@ def plot_length_kde_by_portal(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'length_distribution_by_portal.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ length_distribution_by_portal.png')
 
 
 def plot_ttr_comparison(df: pd.DataFrame):
@@ -384,7 +359,6 @@ def plot_ttr_comparison(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'lexical_diversity.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ lexical_diversity.png')
 
 
 def plot_top_words_by_portal(df: pd.DataFrame):
@@ -404,11 +378,9 @@ def plot_top_words_by_portal(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'top_words_by_portal.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ top_words_by_portal.png')
 
 
 def plot_year_comparison_per_portal(df: pd.DataFrame):
-    """Median word count change 2019→2021 per portal."""
     fig, ax = plt.subplots(figsize=(10, 5))
     x = np.arange(len(PORTALS))
     w = 0.35
@@ -429,29 +401,18 @@ def plot_year_comparison_per_portal(df: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'year_comparison_word_count.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f'✓ year_comparison_word_count.png')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Main
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print('\n' + '=' * 65)
-    print('  LEÍRÓ STATISZTIKÁK — HVG, ORIGO, INDEX')
-    print('=' * 65)
 
-    print('\nAdatok betöltése …')
     df = load_data()
-    print(f'  Összesen: {len(df):,} cikk  |  portálok: {df["portal"].unique().tolist()}')
-    print(f'  Évek: {sorted(df["year"].unique().tolist())}')
 
-    print('\nStatisztikák számítása …')
     write_report(df, OUTPUT_DIR / 'descriptive_statistics_report.txt')
 
-    print('\nVizualizációk készítése …')
     plot_article_counts(df)
     plot_word_count_distribution(df)
     plot_word_count_by_portal_and_year(df)
@@ -459,10 +420,6 @@ def main():
     plot_ttr_comparison(df)
     plot_top_words_by_portal(df)
     plot_year_comparison_per_portal(df)
-
-    print('\n' + '=' * 65)
-    print(f'  KÉSZ  |  Eredmények: {OUTPUT_DIR}')
-    print('=' * 65)
 
 
 if __name__ == '__main__':

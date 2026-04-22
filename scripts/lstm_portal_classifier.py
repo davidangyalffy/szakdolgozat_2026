@@ -32,25 +32,21 @@ from sklearn.utils.class_weight import compute_class_weight
 
 from lime.lime_text import LimeTextExplainer
 
-# ── Global style ──────────────────────────────────────────────────────────────
 sns.set_style('whitegrid')
 plt.rcParams['figure.figsize'] = (12, 8)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR      = Path(__file__).parent
 PROJECT_ROOT    = SCRIPT_DIR.parent
 DATA_PATH       = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_lstm_lemmatized.json'
 FASTTEXT_PATH   = PROJECT_ROOT / 'models' / 'cc.hu.300.bin'
 OUTPUT_DIR_BASE = PROJECT_ROOT / 'results' / 'lstm_results'
 
-# ── Hyperparameter grid (3 × 2 × 2 = 12 combinations) ────────────────────────
 PARAM_GRID = {
     'lstm_units':    [32, 64, 128],
     'dropout_rate':  [0.25, 0.5],
     'learning_rate': [1e-3, 5e-5],
 }
 
-# ── Fixed model configuration ─────────────────────────────────────────────────
 YEAR              = 2019
 MAX_SEQUENCE_LEN  = 330        # 95th-percentile from find_max_sequence_length.py
 MAX_VOCAB_SIZE    = 30_000
@@ -58,7 +54,6 @@ EMBEDDING_DIM     = 300
 DENSE_UNITS       = 64
 RECURRENT_DROPOUT = 0.2        # kept fixed during tuning
 
-# ── Training configuration ────────────────────────────────────────────────────
 BATCH_SIZE              = 64
 EPOCHS                  = 20
 EARLY_STOPPING_PATIENCE = 4
@@ -70,29 +65,20 @@ LIME_SAMPLES            = 200   # test articles explained with LIME
 OUTPUT_DIR = None
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 1 — Load & filter data
-# ─────────────────────────────────────────────────────────────────────────────
 
 def load_and_filter_data(year: int) -> pd.DataFrame:
-    print(f'\n  Loading {DATA_PATH} …')
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         articles = json.load(f)
     df = pd.DataFrame(articles)
-    print(f'  Betöltött cikkek összesen: {len(df):,}')
 
     df = df[df['year'] == str(year)].dropna(subset=['text']).reset_index(drop=True)
-    print(f'  Szűrés ({year}): {len(df):,} cikk')
 
     counts = df['portal'].value_counts()
-    print(f'  HVG:   {counts.get("hvg", 0):,}')
-    print(f'  Origo: {counts.get("origo", 0):,}')
     return df
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 2 — Tokenize & pad
-# ─────────────────────────────────────────────────────────────────────────────
 
 def tokenize_and_pad(df: pd.DataFrame, test_size: float, random_state: int):
     y = (df['portal'] == 'origo').astype(int)
@@ -105,7 +91,6 @@ def tokenize_and_pad(df: pd.DataFrame, test_size: float, random_state: int):
     tokenizer = Tokenizer(num_words=MAX_VOCAB_SIZE, oov_token='<OOV>')
     tokenizer.fit_on_texts(texts_train)
     vocab_size = min(len(tokenizer.word_index) + 1, MAX_VOCAB_SIZE + 1)
-    print(f'  Szótár mérete: {vocab_size:,}')
 
     def encode(texts_list):
         seqs = tokenizer.texts_to_sequences(texts_list)
@@ -114,14 +99,11 @@ def tokenize_and_pad(df: pd.DataFrame, test_size: float, random_state: int):
 
     X_train = encode(texts_train)
     X_test  = encode(texts_test)
-    print(f'  Tanító halmaz: {X_train.shape}  |  Teszt halmaz: {X_test.shape}')
 
     return X_train, X_test, y_train.reset_index(drop=True), y_test.reset_index(drop=True), tokenizer, vocab_size, texts_test
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 3 — Embedding matrix
-# ─────────────────────────────────────────────────────────────────────────────
 
 def build_embedding_matrix(tokenizer: Tokenizer, ft_model, vocab_size: int) -> np.ndarray:
     word_index = tokenizer.word_index
@@ -132,13 +114,10 @@ def build_embedding_matrix(tokenizer: Tokenizer, ft_model, vocab_size: int) -> n
             continue
         matrix[idx] = ft_model.get_word_vector(word)
         found += 1
-    print(f'  Beágyazási mátrix: {matrix.shape}  |  Lefedettség: {found:,}/{min(len(word_index), vocab_size-1):,}')
     return matrix
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Model builder
-# ─────────────────────────────────────────────────────────────────────────────
 
 def build_model(vocab_size: int, embedding_matrix: np.ndarray,
                 lstm_units: int, dropout_rate: float, learning_rate: float) -> Sequential:
@@ -169,9 +148,7 @@ def build_model(vocab_size: int, embedding_matrix: np.ndarray,
     return model
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 4b — Grid search
-# ─────────────────────────────────────────────────────────────────────────────
 
 def tune_hyperparameters(X_train, y_train, X_test, y_test,
                          vocab_size, embedding_matrix, class_weight_dict, patience):
@@ -180,10 +157,6 @@ def tune_hyperparameters(X_train, y_train, X_test, y_test,
     n_combos = len(combos)
     total_fits = n_combos * EPOCHS  # upper bound
 
-    print(f'\n  Rács keresés: {n_combos} kombináció  '
-          f'(legfeljebb {n_combos} × {EPOCHS} = {total_fits} epoch)')
-    print(f'  {"#":>3}  {"lstm_units":>10}  {"dropout":>7}  {"lr":>8}  {"val_loss":>9}  {"val_acc":>8}  {"epochs":>6}')
-    print('  ' + '-' * 60)
 
     results = []
     for i, values in enumerate(combos, 1):
@@ -205,30 +178,21 @@ def tune_hyperparameters(X_train, y_train, X_test, y_test,
         best_val_acc  = hist.history['val_accuracy'][best_epoch]
         epochs_run    = len(hist.history['val_loss'])
 
-        print(f'  {i:>3}  {params["lstm_units"]:>10}  '
-              f'{params["dropout_rate"]:>7.1f}  '
-              f'{params["learning_rate"]:>8.5f}  '
-              f'{best_val_loss:>9.4f}  {best_val_acc:>8.4f}  {epochs_run:>6}')
 
         results.append({**params, 'val_loss': best_val_loss,
                         'val_accuracy': best_val_acc, 'epochs': epochs_run})
         tf.keras.backend.clear_session()
 
     best = min(results, key=lambda r: r['val_loss'])
-    print(f'\n  Legjobb kombináció: {best}')
     return {k: best[k] for k in keys}, results
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 4c — Final training
-# ─────────────────────────────────────────────────────────────────────────────
 
 def train_final_model(X_train, y_train, X_test, y_test,
                       vocab_size, embedding_matrix,
                       best_params, class_weight_dict, year, patience):
-    print(f'\n  Végső modell betanítása: {best_params}')
     model = build_model(vocab_size, embedding_matrix, **best_params)
-    model.summary()
 
     es = EarlyStopping(monitor='val_loss', patience=patience,
                        restore_best_weights=True, verbose=1)
@@ -248,9 +212,7 @@ def train_final_model(X_train, y_train, X_test, y_test,
     return model, history
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 5 — Evaluate
-# ─────────────────────────────────────────────────────────────────────────────
 
 def evaluate_model(model, X_train, X_test, y_train, y_test):
     y_train_proba = model.predict(X_train, batch_size=BATCH_SIZE).flatten()
@@ -264,10 +226,6 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
     train_auc = roc_auc_score(y_train, y_train_proba)
     test_auc  = roc_auc_score(y_test,  y_test_proba)
 
-    print(f'\n  Pontosság  — tanító: {train_acc:.4f}  |  teszt: {test_acc:.4f}')
-    print(f'  AUC-ROC    — tanító: {train_auc:.4f}  |  teszt: {test_auc:.4f}')
-    print()
-    print(classification_report(y_test, y_test_pred, target_names=['HVG', 'Origo'], digits=4))
 
     cm = confusion_matrix(y_test, y_test_pred)
     fpr, tpr, _ = roc_curve(y_test, y_test_proba)
@@ -282,9 +240,7 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 6 — Visualizations
-# ─────────────────────────────────────────────────────────────────────────────
 
 def create_visualizations(results: dict, history, year: int):
     # 1. Training history
@@ -310,7 +266,6 @@ def create_visualizations(results: dict, history, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'training_history.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ training_history.png')
 
     # 2. Confusion matrix
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -323,7 +278,6 @@ def create_visualizations(results: dict, history, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'confusion_matrix.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ confusion_matrix.png')
 
     # 3. ROC curve
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -339,7 +293,6 @@ def create_visualizations(results: dict, history, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'roc_curve.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ roc_curve.png')
 
     # 4. Probability distribution
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -357,15 +310,11 @@ def create_visualizations(results: dict, history, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'probability_distribution.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ probability_distribution.png')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 8 — LIME analysis
-# ─────────────────────────────────────────────────────────────────────────────
 
 def run_lime_analysis(model, tokenizer, texts_test, year: int):
-    print(f'\n  LIME magyarázatok számítása ({LIME_SAMPLES} mintán) …')
 
     def predict_fn(text_list):
         seqs = tokenizer.texts_to_sequences(text_list)
@@ -380,7 +329,6 @@ def run_lime_analysis(model, tokenizer, texts_test, year: int):
     word_scores: dict[str, list[float]] = {}
     for i, text in enumerate(sample_texts):
         if (i + 1) % 50 == 0:
-            print(f'    {i + 1}/{LIME_SAMPLES} …')
         exp = explainer.explain_instance(
             text, predict_fn, num_features=20, num_samples=500
         )
@@ -394,7 +342,6 @@ def run_lime_analysis(model, tokenizer, texts_test, year: int):
     # Save raw scores
     with open(OUTPUT_DIR / 'lime_scores.json', 'w', encoding='utf-8') as f:
         json.dump(mean_scores, f, ensure_ascii=False, indent=2)
-    print('  ✓ lime_scores.json')
 
     # HVG bar chart (most negative scores)
     hvg_words  = sorted_scores[:20]
@@ -411,7 +358,6 @@ def run_lime_analysis(model, tokenizer, texts_test, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'lime_bar_hvg.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ lime_bar_hvg.png')
 
     # Origo bar chart (most positive scores)
     origo_words  = list(reversed(sorted_scores[-20:]))
@@ -428,21 +374,16 @@ def run_lime_analysis(model, tokenizer, texts_test, year: int):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'lime_bar_origo.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ lime_bar_origo.png')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Phase 7 — Save model & results
-# ─────────────────────────────────────────────────────────────────────────────
 
 def save_model_and_results(model, tokenizer, results, history,
                            best_params, grid_results, year: int, patience: int):
     model.save(OUTPUT_DIR / f'lstm_model_{year}.keras')
-    print(f'  ✓ lstm_model_{year}.keras')
 
     with open(OUTPUT_DIR / f'tokenizer_{year}.pkl', 'wb') as f:
         pickle.dump(tokenizer, f)
-    print(f'  ✓ tokenizer_{year}.pkl')
 
     epochs_run = len(history.history['loss'])
     summary = {
@@ -481,12 +422,9 @@ def save_model_and_results(model, tokenizer, results, history,
     out = OUTPUT_DIR / f'results_summary_{year}.json'
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
-    print(f'  ✓ results_summary_{year}.json')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Main
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
     global OUTPUT_DIR
@@ -507,18 +445,12 @@ def main():
     np.random.seed(RANDOM_STATE)
 
     gpus = tf.config.list_physical_devices('GPU')
-    print(f'  GPU: {gpus if gpus else "nincs (CPU módban fut)"}')
 
-    print('\n' + '=' * 70)
-    print(f'  BIDIRECTIONAL LSTM PORTÁLKLASSZIFIKÁTOR  (HVG vs Origo, {year})')
-    print('=' * 70)
 
     # PHASE 1
-    print('\nFÁZIS 1 — ADATOK BETÖLTÉSE ÉS SZŰRÉSE')
     df = load_and_filter_data(year)
 
     # PHASE 2
-    print('\nFÁZIS 2 — TOKENIZÁLÁS ÉS PÁRNÁZÁS')
     X_train, X_test, y_train, y_test, tokenizer, vocab_size, texts_test = \
         tokenize_and_pad(df, TEST_SIZE, RANDOM_STATE)
 
@@ -526,20 +458,13 @@ def main():
         'balanced', classes=np.array([0, 1]), y=y_train.values
     )
     class_weight_dict = {0: float(class_weights[0]), 1: float(class_weights[1])}
-    print(f'  Osztálysúlyok: {class_weight_dict}')
 
     # PHASE 3
-    print('\nFÁZIS 3 — BEÁGYAZÁSI MÁTRIX ÉPÍTÉSE')
-    print(f'  FastText modell betöltése: {FASTTEXT_PATH}')
-    print('  (Ez ~30–60 másodpercet vehet igénybe a 6.7 GB binárishoz…)')
     ft_model = fasttext.load_model(str(FASTTEXT_PATH))
-    print('  ✓ FastText betöltve')
     embedding_matrix = build_embedding_matrix(tokenizer, ft_model, vocab_size)
     del ft_model
-    print('  ✓ FastText modell felszabadítva')
 
     # PHASE 4 — Baseline (default params)
-    print('\nFÁZIS 4a — ALAPMODELL (alapértelmezett paraméterekkel)')
     default_params = {'lstm_units': 128, 'dropout_rate': 0.3, 'learning_rate': 1e-3}
     baseline_model = build_model(vocab_size, embedding_matrix, **default_params)
     es_base = EarlyStopping(monitor='val_loss', patience=patience,
@@ -552,18 +477,15 @@ def main():
     )
     baseline_val_acc  = max(baseline_hist.history['val_accuracy'])
     baseline_val_loss = min(baseline_hist.history['val_loss'])
-    print(f'  Alap val_accuracy: {baseline_val_acc:.4f}  |  val_loss: {baseline_val_loss:.4f}')
     tf.keras.backend.clear_session()
 
     # PHASE 4b — Grid search
-    print('\nFÁZIS 4b — RÁCSOS HIPERPARAMÉTER-KERESÉS')
     best_params, grid_results = tune_hyperparameters(
         X_train, y_train, X_test, y_test,
         vocab_size, embedding_matrix, class_weight_dict, patience,
     )
 
     # PHASE 4c — Final training
-    print('\nFÁZIS 4c — VÉGSŐ MODELL BETANÍTÁSA')
     model, history = train_final_model(
         X_train, y_train, X_test, y_test,
         vocab_size, embedding_matrix,
@@ -572,35 +494,21 @@ def main():
     del embedding_matrix
 
     # PHASE 5 — Evaluate
-    print('\nFÁZIS 5 — KIÉRTÉKELÉS')
     results = evaluate_model(model, X_train, X_test, y_train, y_test)
 
     # PHASE 6 — Visualize
-    print('\nFÁZIS 6 — VIZUALIZÁCIÓK LÉTREHOZÁSA')
     create_visualizations(results, history, year)
 
     # PHASE 7 — LIME
-    print('\nFÁZIS 7 — LIME ELEMZÉS')
     run_lime_analysis(model, tokenizer, texts_test, year)
 
     # PHASE 8 — Save
-    print('\nFÁZIS 8 — MODELL ÉS EREDMÉNYEK MENTÉSE')
     # Patch baseline into results for save
     results['baseline_val_acc'] = baseline_val_acc
     save_model_and_results(model, tokenizer, results, history,
                            best_params, grid_results, year, patience)
 
     # Summary
-    print('\n' + '=' * 70)
-    print('  ELEMZÉS KÉSZ!')
-    print('=' * 70)
-    print(f'\n  Alapmodell  — val_accuracy: {baseline_val_acc:.4f}')
-    print(f'  Legjobb     — Accuracy: {results["test_accuracy"]:.4f}'
-          f'  |  AUC: {results["test_auc"]:.4f}')
-    print(f'  Legjobb paraméterek: {best_params}')
-    print(f'  Lefutott epochok: {len(history.history["loss"])} / {EPOCHS}')
-    print(f'\n  Eredmények mentve: {OUTPUT_DIR}')
-    print('=' * 70)
 
 
 if __name__ == '__main__':

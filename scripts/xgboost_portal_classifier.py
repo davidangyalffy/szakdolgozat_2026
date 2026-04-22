@@ -22,13 +22,11 @@ import pickle
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_PATH        = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_tfidf_lemmatized.json'
 OUTPUT_DIR_BASE  = PROJECT_ROOT / 'results' / 'xgboost_results'
 
-# ── Configuration ─────────────────────────────────────────────────────────────
 YEAR         = 2019
 MAX_FEATURES = 5000
 TEST_SIZE    = 0.2
@@ -44,35 +42,21 @@ PARAM_GRID = {
 }  # 72 combinations × 5-fold CV = 360 fits
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-
 def load_and_filter_data(year=YEAR):
-    print("=" * 70)
-    print("LOADING AND FILTERING DATA")
-    print("=" * 70)
-    print(f"\nLoading from: {DATA_PATH}")
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     df = pd.DataFrame(data)
-    print(f"Total articles loaded: {len(df)}")
 
     df = df[df['year'] == str(year)]
-    print(f"Articles from {year}: {len(df)}")
 
-    print(f"\nDistribution by portal:")
-    print(df['portal'].value_counts())
 
     df = df.dropna(subset=['text'])
-    print(f"\nArticles after removing missing text: {len(df)}")
 
     return df
 
 
 def prepare_features(df, max_features=MAX_FEATURES):
-    print("\n" + "=" * 70)
-    print("PREPARING FEATURES")
-    print("=" * 70)
 
     vectorizer = TfidfVectorizer(
         max_features=max_features,
@@ -82,35 +66,21 @@ def prepare_features(df, max_features=MAX_FEATURES):
         sublinear_tf=True,
     )
 
-    print(f"\nVectorizing text with max_features={max_features}...")
     X = vectorizer.fit_transform(df['text'])
-    print(f"✓ Feature matrix shape: {X.shape}")
 
     y = (df['portal'] == 'origo').astype(int)
-    print(f"\nLabel distribution:")
-    print(f"  HVG   (0): {(y == 0).sum()}")
-    print(f"  Origo (1): {(y == 1).sum()}")
 
     return X, y, vectorizer
 
 
 def split_data(X, y):
-    print("\n" + "=" * 70)
-    print("SPLITTING DATA")
-    print("=" * 70)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
-    print(f"  Training set: {X_train.shape[0]} samples")
-    print(f"  Test set:     {X_test.shape[0]} samples")
     return X_train, X_test, y_train, y_test
 
 
 def train_baseline(X_train, y_train, X_test, y_test):
-    """Train with XGBoost defaults — no tuning."""
-    print("\n" + "=" * 70)
-    print("PHASE 1 — BASELINE MODEL (default parameters)")
-    print("=" * 70)
 
     model = XGBClassifier(
         n_estimators=100,       # XGBoost default
@@ -119,18 +89,11 @@ def train_baseline(X_train, y_train, X_test, y_test):
         random_state=RANDOM_STATE,
         verbosity=0,
     )
-    print("\nTraining baseline model...")
     model.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
-    print("✓ Baseline model trained")
     return model
 
 
 def tune_hyperparameters(X_train, y_train):
-    """GridSearchCV over key XGBoost hyperparameters (5-fold, scoring=roc_auc)."""
-    print("\n" + "=" * 70)
-    print("PHASE 2 — HYPERPARAMETER TUNING (GridSearchCV)")
-    print("=" * 70)
-    print(f"\nParameter grid: {PARAM_GRID}")
     n_fits = (
         len(PARAM_GRID['max_depth']) *
         len(PARAM_GRID['learning_rate']) *
@@ -138,7 +101,6 @@ def tune_hyperparameters(X_train, y_train):
         len(PARAM_GRID['colsample_bytree']) *
         len(PARAM_GRID['subsample'])
     )
-    print(f"Total fits: {n_fits} combinations × 5 folds = {n_fits * 5}\n")
 
     base = XGBClassifier(
         tree_method='hist',
@@ -150,18 +112,10 @@ def tune_hyperparameters(X_train, y_train):
                       n_jobs=1, verbose=1)
     gs.fit(X_train, y_train)
 
-    print(f"\n✓ Grid search complete")
-    print(f"  Best AUC (CV): {gs.best_score_:.4f}")
-    print(f"  Best params:   {gs.best_params_}")
     return gs.best_params_, gs.cv_results_
 
 
 def train_tuned_model(X_train, y_train, X_test, y_test, best_params):
-    """Retrain on full training set with best params from grid search."""
-    print("\n" + "=" * 70)
-    print("PHASE 3 — FINAL MODEL (tuned parameters)")
-    print("=" * 70)
-    print(f"\nParameters: {best_params}")
 
     model = XGBClassifier(
         **best_params,
@@ -170,16 +124,11 @@ def train_tuned_model(X_train, y_train, X_test, y_test, best_params):
         random_state=RANDOM_STATE,
         verbosity=0,
     )
-    print("\nTraining tuned model...")
     model.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
-    print("✓ Tuned model trained")
     return model
 
 
 def evaluate_model(model, X_train, X_test, y_train, y_test):
-    print("\n" + "=" * 70)
-    print("MODEL EVALUATION")
-    print("=" * 70)
 
     y_train_pred  = model.predict(X_train)
     y_test_pred   = model.predict(X_test)
@@ -191,31 +140,11 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
     train_auc      = roc_auc_score(y_train, y_train_proba)
     test_auc       = roc_auc_score(y_test,  y_test_proba)
 
-    print(f"\nAccuracy:")
-    print(f"  Training: {train_accuracy:.4f}")
-    print(f"  Test:     {test_accuracy:.4f}")
-    print(f"\nAUC-ROC:")
-    print(f"  Training: {train_auc:.4f}")
-    print(f"  Test:     {test_auc:.4f}")
 
     cm = confusion_matrix(y_test, y_test_pred)
-    print("\n" + "-" * 70)
-    print("CLASSIFICATION REPORT (Test Set)")
-    print("-" * 70)
-    print(classification_report(y_test, y_test_pred,
-                                target_names=['HVG', 'Origo'], digits=4))
 
-    print("Confusion Matrix (Test Set):")
-    print(f"              Predicted HVG  Predicted Origo")
-    print(f"Actual HVG    {cm[0, 0]:>13d}  {cm[0, 1]:>15d}")
-    print(f"Actual Origo  {cm[1, 0]:>13d}  {cm[1, 1]:>15d}")
 
-    print("\n" + "-" * 70)
-    print("5-FOLD CROSS-VALIDATION")
-    print("-" * 70)
     cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
-    print(f"CV Scores: {cv_scores}")
-    print(f"Mean CV Accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
 
     return {
         'train_accuracy': train_accuracy,
@@ -231,9 +160,6 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
 
 
 def analyze_shap(model, vectorizer, X_test, n_samples=SHAP_SAMPLES):
-    print("\n" + "=" * 70)
-    print("SHAP ANALYSIS")
-    print("=" * 70)
 
     feature_names = vectorizer.get_feature_names_out()
 
@@ -243,12 +169,9 @@ def analyze_shap(model, vectorizer, X_test, n_samples=SHAP_SAMPLES):
     idx = rng.choice(X_test.shape[0], size=n, replace=False)
     X_sample = X_test[idx].toarray()   # TreeExplainer / summary_plot need dense
 
-    print(f"\nComputing SHAP values on {n} test samples …")
     explainer   = shap.TreeExplainer(model, feature_perturbation='tree_path_dependent')
     shap_values = explainer.shap_values(X_sample)   # (n, n_features)
-    print("✓ SHAP values computed")
 
-    # ── Global importance ──────────────────────────────────────────────────────
     mean_abs_shap = np.abs(shap_values).mean(axis=0)
     importance_df = pd.DataFrame({
         'feature': feature_names,
@@ -275,17 +198,14 @@ def analyze_shap(model, vectorizer, X_test, n_samples=SHAP_SAMPLES):
         lines.append(f"{i:3d}. {row.feature:35s}  mean_shap={row.mean_shap:+.4f}")
 
     text = "\n".join(lines)
-    print(text)
     with open(report_path, 'w', encoding='utf-8') as f:
         f.write(text)
-    print(f"\n✓ Saved: {report_path}")
 
     # Save raw SHAP array + feature names for future use
     np.save(OUTPUT_DIR / 'shap_values.npy', shap_values)
     with open(OUTPUT_DIR / 'shap_feature_names.json', 'w', encoding='utf-8') as f:
         json.dump(feature_names.tolist(), f, ensure_ascii=False)
 
-    # ── Visualisations ─────────────────────────────────────────────────────────
 
     # 1. Beeswarm summary (top 20)
     plt.figure()
@@ -302,7 +222,6 @@ def analyze_shap(model, vectorizer, X_test, n_samples=SHAP_SAMPLES):
     p = OUTPUT_DIR / 'shap_summary_beeswarm.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
     # 2. Bar chart – HVG top 20
     _plot_shap_bar(top_hvg.head(20), 'Top 20 HVG-t jelző jellemző',
@@ -327,13 +246,9 @@ def _plot_shap_bar(df, title, color, path):
     plt.tight_layout()
     plt.savefig(path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {path}")
 
 
 def create_standard_visualizations(results):
-    print("\n" + "=" * 70)
-    print("CREATING STANDARD VISUALIZATIONS")
-    print("=" * 70)
 
     # Confusion matrix
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -347,7 +262,6 @@ def create_standard_visualizations(results):
     p = OUTPUT_DIR / 'confusion_matrix.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
     # ROC curve
     fpr, tpr, _ = roc_curve(results['y_test'], results['y_test_proba'])
@@ -365,7 +279,6 @@ def create_standard_visualizations(results):
     p = OUTPUT_DIR / 'roc_curve.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
     # Predicted probability distribution
     _, ax = plt.subplots(figsize=(10, 6))
@@ -389,23 +302,17 @@ def create_standard_visualizations(results):
     p = OUTPUT_DIR / 'probability_distribution.png'
     plt.savefig(p, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {p}")
 
 
 def save_model_and_results(model, vectorizer, tuned_results, baseline_results, best_params):
-    print("\n" + "=" * 70)
-    print("SAVING MODEL AND RESULTS")
-    print("=" * 70)
 
     p = OUTPUT_DIR / f'xgboost_model_{YEAR}.pkl'
     with open(p, 'wb') as f:
         pickle.dump(model, f)
-    print(f"✓ Saved model:      {p}")
 
     p = OUTPUT_DIR / f'vectorizer_{YEAR}.pkl'
     with open(p, 'wb') as f:
         pickle.dump(vectorizer, f)
-    print(f"✓ Saved vectorizer: {p}")
 
     summary = {
         'year':  YEAR,
@@ -430,19 +337,13 @@ def save_model_and_results(model, vectorizer, tuned_results, baseline_results, b
     p = OUTPUT_DIR / f'results_summary_{YEAR}.json'
     with open(p, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2)
-    print(f"✓ Saved summary:    {p}")
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
     global OUTPUT_DIR
     OUTPUT_DIR = OUTPUT_DIR_BASE / str(YEAR)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("\n" + "=" * 70)
-    print(f"XGBOOST PORTAL CLASSIFIER  (HVG vs Origo, {YEAR})")
-    print("=" * 70)
 
     df = load_and_filter_data(year=YEAR)
     X, y, vectorizer = prepare_features(df)
@@ -463,17 +364,6 @@ def main():
     analyze_shap(tuned_model, vectorizer, X_test, n_samples=SHAP_SAMPLES)
     create_standard_visualizations(tuned_results)
     save_model_and_results(tuned_model, vectorizer, tuned_results, baseline_results, best_params)
-
-    print("\n" + "=" * 70)
-    print("ANALYSIS COMPLETE!")
-    print("=" * 70)
-    print(f"\n  Baseline  — Accuracy: {baseline_results['test_accuracy']:.4f}"
-          f"  AUC: {baseline_results['test_auc']:.4f}")
-    print(f"  Tuned     — Accuracy: {tuned_results['test_accuracy']:.4f}"
-          f"  AUC: {tuned_results['test_auc']:.4f}")
-    print(f"  Best params: {best_params}")
-    print(f"\nAll results saved to: {OUTPUT_DIR}")
-    print("=" * 70)
 
 
 if __name__ == "__main__":

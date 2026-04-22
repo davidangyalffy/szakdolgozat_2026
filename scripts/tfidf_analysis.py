@@ -13,14 +13,12 @@ import seaborn as sns
 sns.set_style('whitegrid')
 plt.rcParams['figure.figsize'] = (14, 8)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 HVG_ORIGO    = PROJECT_ROOT / 'processed_data' / 'final' / 'articles_tfidf_lemmatized.json'
 INDEX        = PROJECT_ROOT / 'processed_data' / 'final' / 'index_tfidf_lemmatized.json'
 OUTPUT_DIR   = PROJECT_ROOT / 'results' / 'tfidf_results'
 
-# ── Constants ─────────────────────────────────────────────────────────────────
 MAX_FEATURES = 5000
 MIN_DF       = 5
 MAX_DF       = 0.8
@@ -32,41 +30,24 @@ PORTALS      = ['hvg', 'origo', 'index']
 PORTAL_COLORS = {'hvg': 'steelblue', 'origo': 'coral', 'index': 'mediumseagreen'}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Load data
-# ─────────────────────────────────────────────────────────────────────────────
 
 def load_data() -> pd.DataFrame:
-    print('=' * 70)
-    print('ADATOK BETÖLTÉSE')
-    print('=' * 70)
 
     frames = []
     for path in [HVG_ORIGO, INDEX]:
-        print(f'\n  Betöltés: {path.name} …')
         with open(path, 'r', encoding='utf-8') as f:
             frames.append(pd.DataFrame(json.load(f)))
 
     df = pd.concat(frames, ignore_index=True)
     df = df[df['year'].isin(YEARS)].dropna(subset=['text']).reset_index(drop=True)
 
-    print(f'\n  Összesen: {len(df):,} cikk')
-    print('\n  Portál szerinti megoszlás:')
-    print(df['portal'].value_counts().to_string())
-    print('\n  Év szerinti megoszlás:')
-    print(df['year'].value_counts().sort_index().to_string())
     return df
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # TF-IDF vectorization
-# ─────────────────────────────────────────────────────────────────────────────
 
 def perform_tfidf(df: pd.DataFrame):
-    print('\n' + '=' * 70)
-    print('TF-IDF VEKTORIZÁCIÓ')
-    print('=' * 70)
-    print(f'\n  max_features={MAX_FEATURES}  min_df={MIN_DF}  max_df={MAX_DF}')
 
     vectorizer = TfidfVectorizer(
         max_features=MAX_FEATURES,
@@ -79,15 +60,10 @@ def perform_tfidf(df: pd.DataFrame):
     feature_names = vectorizer.get_feature_names_out()
 
     sparsity = 100 * (1 - matrix.nnz / (matrix.shape[0] * matrix.shape[1]))
-    print(f'\n  Mátrix: {matrix.shape[0]:,} × {matrix.shape[1]:,}')
-    print(f'  Nem-nulla elemek: {matrix.nnz:,}')
-    print(f'  Ritkasság: {sparsity:.2f}%')
     return matrix, vectorizer, feature_names
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Analysis helpers
-# ─────────────────────────────────────────────────────────────────────────────
 
 def top_terms_for(matrix, feature_names, n=20):
     avg = np.asarray(matrix.mean(axis=0)).flatten()
@@ -96,26 +72,18 @@ def top_terms_for(matrix, feature_names, n=20):
 
 
 def analyze_top_terms(matrix, feature_names, df):
-    print('\n' + '=' * 70)
-    print('TOP KIFEJEZÉSEK ÖSSZESÍTVE')
-    print('=' * 70)
     terms = top_terms_for(matrix, feature_names, TOP_N)
     for i, (t, s) in enumerate(terms, 1):
-        print(f'  {i:3d}. {t:<30} {s:.6f}')
 
     out = OUTPUT_DIR / 'top_terms.txt'
     lines = ['TOP TERMS BY AVERAGE TF-IDF SCORE\n' + '=' * 70 + '\n']
     for i, (t, s) in enumerate(terms, 1):
         lines.append(f'{i:3d}. {t:<30} {s:.6f}')
     out.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'\n  ✓ top_terms.txt')
     return terms
 
 
 def analyze_by_portal(matrix, feature_names, df):
-    print('\n' + '=' * 70)
-    print('TOP KIFEJEZÉSEK PORTÁLONKÉNT')
-    print('=' * 70)
     results = {}
     for p in PORTALS:
         mask = (df['portal'] == p).values
@@ -123,9 +91,7 @@ def analyze_by_portal(matrix, feature_names, df):
             continue
         terms = top_terms_for(matrix[mask], feature_names, TOP_PORTAL)
         results[p] = terms
-        print(f'\n  {p.upper()}:')
         for i, (t, s) in enumerate(terms, 1):
-            print(f'    {i:3d}. {t:<30} {s:.6f}')
 
     out = OUTPUT_DIR / 'top_terms_by_portal.txt'
     lines = ['TOP TERMS BY PORTAL\n' + '=' * 70]
@@ -134,22 +100,16 @@ def analyze_by_portal(matrix, feature_names, df):
         for i, (t, s) in enumerate(terms, 1):
             lines.append(f'{i:3d}. {t:<30} {s:.6f}')
     out.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'\n  ✓ top_terms_by_portal.txt')
     return results
 
 
 def analyze_by_year(matrix, feature_names, df):
-    print('\n' + '=' * 70)
-    print('TOP KIFEJEZÉSEK ÉVENKÉNT')
-    print('=' * 70)
     results = {}
     for yr in YEARS:
         mask = (df['year'] == yr).values
         terms = top_terms_for(matrix[mask], feature_names, TOP_YEAR)
         results[yr] = terms
-        print(f'\n  {yr}:')
         for i, (t, s) in enumerate(terms[:10], 1):
-            print(f'    {i:3d}. {t:<30} {s:.6f}')
 
     out = OUTPUT_DIR / 'top_terms_by_year.txt'
     lines = ['TOP TERMS BY YEAR\n' + '=' * 70]
@@ -158,14 +118,10 @@ def analyze_by_year(matrix, feature_names, df):
         for i, (t, s) in enumerate(terms, 1):
             lines.append(f'{i:3d}. {t:<30} {s:.6f}')
     out.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'\n  ✓ top_terms_by_year.txt')
     return results
 
 
 def analyze_by_portal_and_year(matrix, feature_names, df):
-    print('\n' + '=' * 70)
-    print('TOP KIFEJEZÉSEK PORTÁL × ÉV')
-    print('=' * 70)
     results = {}
     for p in PORTALS:
         results[p] = {}
@@ -188,13 +144,10 @@ def analyze_by_portal_and_year(matrix, feature_names, df):
             for i, (t, s) in enumerate(terms, 1):
                 lines.append(f'{i:3d}. {t:<30} {s:.6f}')
     out.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'  ✓ top_terms_by_portal_year.txt')
     return results
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Text report (descriptive_statistics_report style)
-# ─────────────────────────────────────────────────────────────────────────────
 
 def write_report(df, top_terms, portal_terms, year_terms, portal_year_terms, matrix, feature_names):
     sep  = '=' * 70
@@ -268,17 +221,11 @@ def write_report(df, top_terms, portal_terms, year_terms, portal_year_terms, mat
 
     out = OUTPUT_DIR / 'tfidf_analysis_report.txt'
     out.write_text('\n'.join(lines), encoding='utf-8')
-    print(f'  ✓ tfidf_analysis_report.txt')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Visualizations
-# ─────────────────────────────────────────────────────────────────────────────
 
 def create_visualizations(top_terms, portal_terms, year_terms):
-    print('\n' + '=' * 70)
-    print('VIZUALIZÁCIÓK')
-    print('=' * 70)
 
     # 1. Top 30 overall
     fig, ax = plt.subplots(figsize=(12, 10))
@@ -294,7 +241,6 @@ def create_visualizations(top_terms, portal_terms, year_terms):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'top_30_terms.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ top_30_terms.png')
 
     # 2. Portal comparison — 3 panels
     fig, axes = plt.subplots(1, 3, figsize=(20, 8))
@@ -315,7 +261,6 @@ def create_visualizations(top_terms, portal_terms, year_terms):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'portal_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ portal_comparison.png')
 
     # 3. Year comparison — 2 panels (2019 vs 2021)
     fig, axes = plt.subplots(1, 2, figsize=(16, 8))
@@ -337,14 +282,11 @@ def create_visualizations(top_terms, portal_terms, year_terms):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'year_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ year_comparison.png')
 
     # 4. Portal × year heatmap — top 20 shared terms, mean TF-IDF per group
-    print('  ✓ All visualizations created')
 
 
 def create_portal_year_heatmap(matrix, feature_names, df):
-    """Heatmap: top 30 overall terms × portal+year groups."""
     avg_all  = np.asarray(matrix.mean(axis=0)).flatten()
     top_idx  = avg_all.argsort()[-30:][::-1]
     top_feat = [feature_names[i] for i in top_idx]
@@ -369,24 +311,16 @@ def create_portal_year_heatmap(matrix, feature_names, df):
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / 'portal_year_heatmap.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print('  ✓ portal_year_heatmap.png')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Save matrix
-# ─────────────────────────────────────────────────────────────────────────────
 
 def save_tfidf_matrix(matrix, feature_names, df):
-    print('\n' + '=' * 70)
-    print('MÁTRIX MENTÉSE')
-    print('=' * 70)
 
     save_npz(OUTPUT_DIR / 'tfidf_matrix.npz', matrix)
-    print('  ✓ tfidf_matrix.npz')
 
     with open(OUTPUT_DIR / 'feature_names.json', 'w', encoding='utf-8') as f:
         json.dump(list(feature_names), f, ensure_ascii=False, indent=2)
-    print('  ✓ feature_names.json')
 
     sparsity = 100 * (1 - matrix.nnz / (matrix.shape[0] * matrix.shape[1]))
     metadata = {
@@ -403,18 +337,12 @@ def save_tfidf_matrix(matrix, feature_names, df):
     }
     with open(OUTPUT_DIR / 'tfidf_metadata.json', 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
-    print('  ✓ tfidf_metadata.json')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Main
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    print('\n' + '=' * 70)
-    print('TF-IDF ELEMZÉS — HVG, ORIGO, INDEX')
-    print('=' * 70)
 
     df = load_data()
     matrix, vectorizer, feature_names = perform_tfidf(df)
@@ -424,22 +352,12 @@ def main():
     year_terms       = analyze_by_year(matrix, feature_names, df)
     portal_year_terms = analyze_by_portal_and_year(matrix, feature_names, df)
 
-    print('\n' + '=' * 70)
-    print('RIPORT ÉS VIZUALIZÁCIÓK')
-    print('=' * 70)
     write_report(df, top_terms, portal_terms, year_terms, portal_year_terms, matrix, feature_names)
     create_visualizations(top_terms, portal_terms, year_terms)
     create_portal_year_heatmap(matrix, feature_names, df)
     save_tfidf_matrix(matrix, feature_names, df)
 
-    print('\n' + '=' * 70)
-    print('KÉSZ!')
-    print('=' * 70)
-    print(f'\n  Eredmények: {OUTPUT_DIR}')
-    print('\n  Generált fájlok:')
     for f in sorted(OUTPUT_DIR.iterdir()):
-        print(f'    - {f.name}')
-    print('=' * 70)
 
 
 if __name__ == '__main__':
